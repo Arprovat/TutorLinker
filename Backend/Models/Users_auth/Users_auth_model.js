@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
+const bcrypt = require('bcrypt');
 
 const { Schema } = mongoose;
 
@@ -25,7 +25,7 @@ const UserSchema = new Schema({
   role: {
     type: String,
     enum: ['student', 'parent', 'tutor'],
-    required: true,
+    
   },
   googleId: {
     type: String,
@@ -45,7 +45,7 @@ UserSchema.pre('save', async function (next) {
 
   try {
     
-    const salt = await bcrypt.genSalt(process.env.SALT);
+    const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
     next();
   } catch (err) {
