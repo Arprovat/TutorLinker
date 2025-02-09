@@ -1,7 +1,7 @@
 const transport = require("../../Config/Mail_config/Mail_config");
 
 const sendConfirmationEmail = async (user, token) => {
-    const confirmationUrl = `${process.env.FRONTEND_URL}/confirm/${token}`;
+    const confirmationUrl = `${process.env.FRONTEND_URL}/api/confirm/${token}`;
 
     const mailOptions = {
         from: `"TutorLinker" <${process.env.EMAIL_ADDRESS}>`,
