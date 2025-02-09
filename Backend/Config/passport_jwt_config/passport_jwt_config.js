@@ -11,14 +11,18 @@ const opts = {
 passport.use(
   new JwtStrategy(opts, async (jwt_payload, done) => {
     try {
-      console.log(jwt_payload);
-      const user = await Users_auth_model.findById(jwt_payload.user_id);
-      if (user) {
+        if (!jwt_payload.user_id) {
+            return done(null, false, { message: 'Invalid token payload' });
+        }
+        const user = await Users_auth_model.findById(jwt_payload.user_id);  // Simplified query syntax
+        if (!user) {
+            return done(null, false, { message: 'User not found' });  // Added error message
+        }
         return done(null, user);
-      }
-      return done(null, false);
     } catch (error) {
-      return done(error, false);
+        return done(error, false, { message: 'Internal server error' });  // Added error message
     }
   })
 );
+
+module.exports = passport

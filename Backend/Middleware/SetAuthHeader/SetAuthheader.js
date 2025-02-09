@@ -9,7 +9,7 @@ const setAuthHeader = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(access_token, process.env.JWT_SECRET_KEY);
-    req.headers['Authorization'] = `Bearer ${access_token}`;
+    req.headers['authorization'] = `Bearer ${access_token}`;
     return next();
   } catch (err) {
     if (err.name === 'TokenExpiredError') {
