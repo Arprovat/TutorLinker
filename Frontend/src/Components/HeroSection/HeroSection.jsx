@@ -3,8 +3,9 @@
 import { motion } from "framer-motion"
 import CounterUp from "react-countup"
 import PropTypes from "prop-types"
-const HeroSection = ({theme}) => {
-    console.log(theme)
+import { useOutletContext } from "react-router-dom"
+const HeroSection = () => {
+    const {theme} = useOutletContext()
   return (
     <section className={`relative ${theme === "dark" ?   "bg-gray-900": "bg-gray-50"}`}>
       

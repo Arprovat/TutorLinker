@@ -1,6 +1,6 @@
 import { motion } from "framer-motion"
-
-const Bg_Blurry_blob = () => {  
+import PropTypes from "prop-types"
+const Bg_Blurry_blob = ({duration}) => {  
   return (
     <div className="absolute inset-0 z-10 overflow-hidden">
       <motion.div
@@ -9,7 +9,7 @@ const Bg_Blurry_blob = () => {
           rotate: [0, 90, 0],
         }}
         transition={{
-          duration: 20,
+          duration: duration,
           repeat: Number.POSITIVE_INFINITY,
           repeatType: "reverse",
         }}
@@ -18,5 +18,9 @@ const Bg_Blurry_blob = () => {
     </div>
   )
 }
+
+Bg_Blurry_blob.propTypes = {
+  duration: PropTypes.number.isRequired,
+};
 
 export default Bg_Blurry_blob;

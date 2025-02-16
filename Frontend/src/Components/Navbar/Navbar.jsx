@@ -1,11 +1,13 @@
 
-import { useState, useEffect } from "react"
+import { useState, useEffect,} from "react"
 import { Moon, Sun, Menu, X } from "lucide-react"
-import { Link } from "react-router-dom"
+import { Link } from "react-router-dom" 
+import { useLocation } from "react-router-dom"
 import PropTypes from "prop-types"
 const Navbar = ({theme, setTheme}) => {
   
-  
+  const {pathname} = useLocation()
+  console.log(pathname === "/signup")
   const [mounted, setMounted] = useState(false)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
@@ -13,7 +15,7 @@ const Navbar = ({theme, setTheme}) => {
   if (!mounted) return null
 
   return (
-    <nav className={`relative z-50 bg-white  ${theme === "dark" && "bg-zinc-800" } shadow-md`}>
+    <nav className={`relative z-50 ${theme === "dark" ?   "bg-gray-900": "bg-gray-50"} shadow-md`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
@@ -51,12 +53,17 @@ const Navbar = ({theme, setTheme}) => {
               >
                 {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
               </button>
-              <Link
-                to="/signin"
-                className="ml-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-              >
-                Sign In
-              </Link>
+              {
+                pathname === "/signup" ? (
+                  <Link to="/login" className="ml-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                    Login
+                  </Link>
+                ) : (
+                  <Link to="/signup" className="ml-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                    Sign_Up
+                  </Link>
+                )
+              }
             </div>
           </div>
           <div className="-mr-2  md:hidden">
@@ -94,12 +101,17 @@ const Navbar = ({theme, setTheme}) => {
           </div>
           <div className="pt-4 pb-3 border-t border-gray-700">
             <div className="flex items-center px-5">
-              <Link
-                    to="/signin"
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-              >
-                Sign In
-              </Link>
+                {
+                  pathname === "/signup" ? (
+                    <Link to="/login" className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                      Login
+                    </Link>
+                  ) : (
+                    <Link to="/signup" className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                      Sign_Up
+                    </Link>
+                  )
+                }
               <button
                 onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
                 className="ml-auto p-1 rounded-full text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white"
