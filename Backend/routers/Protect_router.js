@@ -9,6 +9,7 @@ const router = express.Router()
 
 router.use(setAuthHeader)
 router.use(refreshAccessToken)
+router.get("/Logout",Login.logout);
 router.use(passport.authenticate('jwt',{session:false}));
 
 
@@ -16,7 +17,6 @@ router.get('/profile',profile.getProfile);
 router.post("/EditProfile",profile.editProfile);
 router.post("/ChangePassword",profile.changePassword);
 router.post("/DeleteAccount",profile.deleteAccount);
-router.get("/Logout",Login.logout);
 
 
 

@@ -8,8 +8,7 @@ const setAuthHeader = (req, res, next) => {
   }
 
   try {
-    const decoded = jwt.verify(access_token, process.env.JWT_SECRET_KEY);
-    req.headers['authorization'] = `Bearer ${access_token}`;
+    jwt.verify(access_token, process.env.JWT_SECRET_KEY);
     return next();
   } catch (err) {
     if (err.name === 'TokenExpiredError') {
@@ -18,5 +17,5 @@ const setAuthHeader = (req, res, next) => {
     return res.status(401).json({ message: "Invalid access token" });
   }
 };
-
+  
 module.exports = setAuthHeader;

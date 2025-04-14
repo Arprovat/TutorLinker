@@ -24,7 +24,7 @@ const UserSchema = new Schema({
   },
   role: {
     type: String,
-    enum: ['student', 'parent', 'tutor'],
+    enum: ['student', 'parent','teacher'],
     
   },
   googleId: {
@@ -38,7 +38,6 @@ const UserSchema = new Schema({
 },{timestamps: true});
 
 UserSchema.pre('save', async function (next) {
-  // Only hash the password if it has been modified (or is new)
   if (!this.isModified('password')) {
     return next();
   }

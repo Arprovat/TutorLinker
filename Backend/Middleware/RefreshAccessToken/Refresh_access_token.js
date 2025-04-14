@@ -2,12 +2,9 @@ const jwt = require('jsonwebtoken');
 const CreateToken = require('../../Helper/CreateToken/CreateToken'); // Using CommonJS for consistency
 
 const refreshAccessToken = async (req, res, next) => {
-  const authToken = req.headers['authorization'];
-  if (!authToken || !authToken.startsWith('Bearer ')) {
-    return res.status(401).json({ message: "Invalid access token" , authToken: authToken }); 
-  }
+ 
 
-  const oldAccessToken = authToken.split(' ')[1];
+  const oldAccessToken = req.cookies.access_token;
 
   try {
     const decoded = jwt.verify(oldAccessToken, process.env.JWT_SECRET_KEY);
@@ -25,8 +22,15 @@ const refreshAccessToken = async (req, res, next) => {
 
         const { access_token } = await CreateToken({ id: refreshDecoded.user_id, email: refreshDecoded.user_email });
 
-        res.set('Authorization', `Bearer ${access_token}`);
-        req.headers['authorization'] = `Bearer ${access_token}`;
+
+        const cookieOptions = {
+          httpOnly: true,
+          secure: true, 
+        };
+  
+        res.cookie("access_token", access_token, cookieOptions);
+        //res.set('Authorization', `Bearer ${access_token}`);
+       // req.headers['authorization'] = `Bearer ${access_token}`;
 
         try {
           const newDecoded = jwt.verify(access_token, process.env.JWT_SECRET_KEY);

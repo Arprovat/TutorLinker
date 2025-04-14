@@ -32,16 +32,15 @@ class Login {
 
       res.cookie("access_token", access_token, cookieOptions);
       res.cookie("refresh_token", refresh_token, cookieOptions);
-      res.setHeader('Authorization', `Bearer ${access_token}`);
-      req.headers['Authorization'] = `Bearer ${access_token}`;
+     // res.setHeader('Authorization', `Bearer ${access_token}`);
+      // req.headers['Authorization'] = `Bearer ${access_token}`;
 
       return res.status(200).json({
         message: "Login successful",
         success: true,
       });
     } catch (error) {
-      console.error("Login error:", error);
-      return res.status(500).json({ message: "Server error" });
+      return res.status(500).json({ message: "Authentication failed" });
     }
   }
   static sendResetPasswordEmail = async (req,res)=>{
