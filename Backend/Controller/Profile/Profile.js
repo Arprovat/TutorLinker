@@ -1,20 +1,34 @@
 const Update_profile = require("../../Helper/update_profile/Update_profile");
+const Profile_model = require("../../Models/User_Profile/User_profile");
 const Users_auth_model = require("../../Models/Users_auth/Users_auth_model");
 
 class profile {
 
-    static getProfile = (req, res) => {
-        res.json({
-            message: "profile data",
-            data: req.user
-        })
+
+
+    static getProfile = async (req, res) => {
+        try {
+            const user = req.user
+            if (user) {
+                const profileData = await Profile_model.findOne({ AccId: user._id })
+                if (!profileData) {
+                    return res.status(404).json({ message: "profile data not found" })
+                }
+                return res.status(200).json({ message: "profile found", success: true, Data: profileData })
+            }
+            return res.status(404).json({ message: "invalid user" })
+        } catch (error) {
+            return res.status(400).json({ Error: error })
+        }
     }
 
-    static editProfile = (req, res) => {
+
+
+    static editProfile = async (req, res) => {
         try {
             const user = req.user
             const updateData = req.body;
-            const updateProfile = Update_profile(user._id, updateData)
+            const updateProfile = await Update_profile(user._id, updateData)
             if (updateProfile) {
                 return res.status(200).json({
                     message: "update successful",
@@ -30,6 +44,8 @@ class profile {
             return res.status(400).json({ message: 'Internal server error' })
         }
     }
+
+
 
     static changePassword = async (req, res) => {
 
@@ -57,6 +73,8 @@ class profile {
 
 
     }
+
+
 
     static deleteAccount = async (req, res) => {
         try {
