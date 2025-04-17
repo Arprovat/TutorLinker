@@ -13,7 +13,7 @@ const experienceSchema = new Schema({
 
 })
 const User_profile_Schema = new Schema({
-    AccId: { type: mongoose.Schema.ObjectId,required: true, ref: "User" },
+    AccId: { type: mongoose.Schema.Types.ObjectId,required: true, ref: "User" },
     profile_pic: { type: String, },
     cover_pic:{type:String},
     Address: { type: String, },

@@ -1,4 +1,6 @@
 const express = require('express');
+const socketIo =require('socket.io')
+const http = require('http');
 const app = express();
 const cors = require('cors');
 const routers =require('./routers/routers')
@@ -12,6 +14,14 @@ const router = require('./routers/Protect_router');
 const Google_router = require('./routers/Google_router');
 
 const PORT= process.env.PORT||8000;
+
+const server = http.createServer(app)
+const io = socketIo(server,{
+    cors:{
+        origin:'*',
+        method:['POST','GET']
+    }
+})
 
 //express_json  middleware for parsing json data
 app.use(express.json());
@@ -41,7 +51,19 @@ app.use('/protect',router)
 //google router for google authentication
 //app.use('/auth',Google_router)
 
+io.on('connect',(socket)=>{
+console.log('connected');
+socket.on('register',(userId)=>{
+    socket.join(userId)
+    console.log(`User ${userId} joined their room`);
 
+});
+socket.on('disconnected',()=>{
+    console.log('user disconnected')
+})
+})
+
+app.set('io',io)
 Mongo_config().then(()=>app.listen(PORT,()=>{
     console.log("listening on",PORT);
 }))
