@@ -107,7 +107,6 @@ const Login = () => {
                   id="email"
                   name="email"
                   type="email"
-                  autoComplete="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -139,7 +138,6 @@ const Login = () => {
                   id="password"
                   name="password"
                   type={showPassword ? 'text' : 'password'}
-                  autoComplete="current-password"
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -178,13 +176,13 @@ const Login = () => {
                 type="checkbox"
                 className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
               />
-              <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
+              <label htmlFor="remember-me" className="ml-2  text-sm text-gray-900">
                 Remember me
               </label>
             </div>
 
             <div className="text-sm">
-              <a href="#" className="font-medium text-primary hover:text-primary-dark">
+              <a href="#" className="font-medium text-primary hover:text-sky-600">
                 Forgot your password?
               </a>
             </div>

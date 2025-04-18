@@ -44,19 +44,21 @@ const SignupPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (validateForm()) {
-      console.log("Form submitted:", { ...formData, isTeacher }) 
-      const response = await axios.post("http://localhost:8000/api/RegisterUser",
-       { ...formData, isTeacher },{withCredentials: true})
-      if(response.status === 200){
+      try {
+        const response = await axios.post(
+          "http://localhost:8000/api/RegisterUser",
+          { ...formData, isTeacher },
+          { withCredentials: true }
+        )
+  
         toast.success(response.data.message)
-      navigate("/login")
-      }else{
-        toast.error(response.data.message)
+        navigate("/login") // Ensure correct route
+      } catch (error) {
+        toast.error(error.response?.data?.message || "Something went wrong")
       }
-    }
+    }  
   }
   useEffect(() => {
-    navigate("/login")
   }, [])
 
   const handleChange = (e) => {

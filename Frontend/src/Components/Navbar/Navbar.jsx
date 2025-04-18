@@ -1,5 +1,5 @@
 
-import { useState, useEffect,} from "react"
+import { useState} from "react"
 import { Moon, Sun, Menu, X } from "lucide-react"
 import { Link } from "react-router-dom" 
 import { useLocation } from "react-router-dom"
@@ -7,12 +7,10 @@ import PropTypes from "prop-types"
 const Navbar = ({theme, setTheme}) => {
   
   const {pathname} = useLocation()
-  console.log(pathname === "/signup")
-  const [mounted, setMounted] = useState(false)
+  
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
-  useEffect(() => setMounted(true), [])
-  if (!mounted) return null
+  
 
   return (
     <nav className={`relative z-50 ${theme === "dark" ?   "bg-gray-900": "bg-gray-50"} shadow-md`}>
