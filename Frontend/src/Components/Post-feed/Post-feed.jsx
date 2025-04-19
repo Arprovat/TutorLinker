@@ -1,5 +1,6 @@
 
 import PostCard from './../postCard/PostCard';
+import { motion } from 'framer-motion';
 const PostFeed = () => {
     return (
         <div className="space-y-4 text-black aut">
@@ -15,7 +16,7 @@ const PostFeed = () => {
                     />
                 </div>
                 <div className="flex justify-end">
-<button type='button' className='bg-black flex font-semibold items-center justify-center text-white shadow-2xl h-10 w-20 rounded-2xl'>post</button>
+<motion.button whileTap={{scale:1.1}}  type='button' className='bg-black flex font-semibold items-center justify-center text-white shadow-2xl h-10 w-20 rounded-2xl'>post</motion.button>
                 </div>
             </div>
             <PostCard></PostCard>

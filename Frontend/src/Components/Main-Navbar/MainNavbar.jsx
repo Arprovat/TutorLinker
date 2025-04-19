@@ -5,7 +5,7 @@ import { FaUserCircle } from 'react-icons/fa';
 
 const MainNavbar = () => {
   return (
-    <nav className="bg-gray-100 py-1 mb-4 shadow-md sticky top-0 z-10">
+    <nav className="bg-white py-2 mb-3 shadow-md sticky top-0 z-10">
       <div className="container mx-auto flex items-center justify-between px-4 sm:px-6 ">
         <Link to="/" className="flex items-center">
           <img src='' alt="Logo" className="h-8 w-auto mr-2" />
@@ -28,7 +28,7 @@ const MainNavbar = () => {
           <div className="md:hidden">
            <Link to='/search'> <BiSearch className="h-6 w-6 text-gray-600 cursor-pointer" /></Link>
           </div>
-          <Link to="/profile" className="rounded-full focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          <Link to="/profile">
             <FaUserCircle className="h-8 w-8 text-gray-500" />
           </Link>
           
