@@ -55,7 +55,7 @@ class profile {
             if (!oldPassword || !newPassword) {
                 return res.status(400).json({ message: "Password is required" });
             }
-            const user = await Users_auth_model.findById(req.user._id);
+            const user = await Users_auth_model.findById(req.user.user_id);
             if (!user) {
                 return res.status(404).json({ message: "User not found" });
             }
@@ -82,7 +82,7 @@ class profile {
             if (!password) {
                 return res.status(400).json({ message: "Password is required" });
             }
-            const user = await Users_auth_model.findById(req.user._id);
+            const user = await Users_auth_model.findById(req.user.user_id);
             if (!user) {
                 return res.status(404).json({ message: "User not found" });
             }
@@ -91,7 +91,7 @@ class profile {
                 return res.status(401).json({ message: "Invalid password" });
             }
 
-            await Users_auth_model.findByIdAndDelete(req.user._id);
+            await Users_auth_model.findByIdAndDelete(req.user.user_id);
             return res.status(200).json({ message: "Account deleted successfully" });
         } catch (error) {
             return res.status(500).json({ message: "Internal server error" });
