@@ -56,4 +56,86 @@ class Post{
         });
     }
     }
+    static AllPost = async(req,res)=>{
+        try {
+            const {limit=10,page=1}=req.query
+            const userId = req.user._id
+
+            const posts= await Post_Model.find()
+            .sort({createdAt:-1})
+            .skip((page-1*Number(limit)))
+            .limit(Number(limit))
+            .lean
+            
+            posts.forEach(post => {
+                post.UserLikeInPost=post.likes.include(userId)
+                post.likeCount=post.likes.length;
+                post.countComment= post.comments.length
+
+            });
+
+            return res.status(200).json({
+                data:posts
+            })
+
+        } catch (error) {
+            return res.status(500).json({
+                message:"server error"
+            })
+        }
+    }
+    static EditPost =async(req,res)=>{
+        try {
+            const {postId} = req.params
+            const {updateData}= req.body;
+            const userId=req.user._id
+            if(!userId && Object.keys(updateData) ===0){
+                return res.status(400).json({message:"invalid Data"})
+            }
+            const ExitsPost=await Post_Model.findOne({_id:new ObjectId(postId)})
+            if(!ExitsPost){
+                return res.status(404).json({message:"post not found"})
+            }
+            if(updateData.photoUrl){
+                updateData.photoUrl=[...ExitsPost.photoUrl,...updateData.photoUrl]
+            }
+            if(updateData.videoUrl){
+                updateData.videoUrl=[...updateData.videoUrl,...ExitsPost.videoUrl]
+            }
+            const result = await Post_Model.findOneAndUpdate(
+                    new ObjectId(postId),
+                    {$set:updateData},
+                    {new:true,runValidators:true}
+            )
+            return res.status(200).json({message:'Edit successful',data:result})
+        
+        } catch (error) {
+            return res.status(500).json({
+                message:"server error while editing post"
+            })
+        }
+    }
+    static DeletePost = async(req,res)=>{
+
+        try {
+            const {postId} = req.params;
+
+            if(!postId){
+                return res.status(400).json({message:'invalid data'})
+            }
+
+            await Post_Model.findByIdAndDelete(new ObjectId(postId))
+
+            return res.status(200).json({
+                success:true,
+                message:"successfully delete"
+            })
+        } catch (error) {
+            return res.status(500).json({
+                message:"server error while Deleting post"
+            })
+        }
+
+    }
 }
+module.exports=Post
