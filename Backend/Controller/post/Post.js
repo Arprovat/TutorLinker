@@ -1,3 +1,4 @@
+const Comment_model = require("../../Models/Comment/Comment_model");
 const Connected = require("../../Models/Connected/Connected");
 const Notification_Model = require("../../Models/Notification/Notification_Model");
 const Post_Model = require("../../Models/Post/Post_Model");
@@ -7,7 +8,7 @@ class Post{
     static createPost=async(req,res)=>{
     try {
         const io = req.app.get('io')
-        const userId = req.user._id
+        const userId = req.user.user_id
         const{content,photoUrl,videoUrl} = req.body;
         if(!content &&(photoUrl|| photoUrl.length===0)&&(videoUrl||videoUrl.length===0) ){
            return res.status(400).json({message:"invalid information"})
@@ -59,7 +60,7 @@ class Post{
     static AllPost = async(req,res)=>{
         try {
             const {limit=10,page=1}=req.query
-            const userId = req.user._id
+            const userId = req.user.user_id
 
             const posts= await Post_Model.find()
             .sort({createdAt:-1})
@@ -86,9 +87,9 @@ class Post{
     }
     static EditPost =async(req,res)=>{
         try {
-            const {postId} = req.params
+            const {postId} = req.params.id
             const {updateData}= req.body;
-            const userId=req.user._id
+            const userId=req.user.user_id
             if(!userId && Object.keys(updateData) ===0){
                 return res.status(400).json({message:"invalid Data"})
             }
@@ -136,6 +137,60 @@ class Post{
             })
         }
 
+    }
+    static likeInPost = async(req,res)=>{
+        try {
+            const userId = req.user.user_id
+            const {postId} =req.params.id
+
+            if(postId){
+                return res.status(400).json({message:'invalid data'})
+            }
+
+            const post = await Post_Model.findById(postId)
+            if(!post){
+                return res.status(404).json({message:'post not found'})
+            }
+            const isLike = post.likes.includes(userId)
+            if(isLike){
+                post.likes.pull(userId)
+            }
+            else{
+                post.likes.push(userId)
+            }
+            return res.status(200).json({likeCount:post.likes.length})
+        } catch (error) {
+           return res.status(500).json({message:'Server error while like in post',error:error})
+        }
+    }
+    static comment= async(req,res)=>{
+        try {
+            const userId = req.user.user_id;
+            const {postId} = req.params.id
+            const {text} = req.body
+            
+            if(postId){
+                return res.status(400).json({message:'invalid data'})
+            }
+            const post = await Post_Model.findById(postId)
+            
+                if(!post){
+                    return res.status(404).json({message:'post not found'})
+                }
+                const comment= await Comment_model.create(
+                    {postId,
+                    postType:'GeneralPost',
+                    userId,
+                    text
+                    }
+                )
+                post.comments.push(comment._id)
+                const data = post.comments.populate()
+                return res.status(200).json({data,message:'comment add'})
+        } catch (error) {
+            return res.status(500).json({message:'Server error while comment in post',error:error})
+
+        }
     }
 }
 module.exports=Post

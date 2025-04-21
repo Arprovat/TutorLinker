@@ -23,7 +23,8 @@ router.get('/post',Post.AllPost)
 router.post('/CreatePost',Post.createPost)
 router.put('/edit/:id',Post.EditPost)
 router.delete('/post/delete/:id',Post.DeletePost)
-
+router.post('/like/:id',Post.likeInPost)
+router.post('/comment/:id',Post.comment)
 
 
 
