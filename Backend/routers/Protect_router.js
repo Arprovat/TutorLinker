@@ -19,12 +19,12 @@ router.post("/EditProfile",profile.editProfile);
 router.post("/ChangePassword",profile.changePassword);
 router.post("/DeleteAccount",profile.deleteAccount);
 
-router.get('/post',Post.AllPost)
+router.get('/post',Post.getAllPosts)
 router.post('/CreatePost',Post.createPost)
-router.put('/edit/:id',Post.EditPost)
-router.delete('/post/delete/:id',Post.DeletePost)
-router.post('/like/:id',Post.likeInPost)
-router.post('/comment/:id',Post.comment)
+router.put('/edit/:id',Post.editPost)
+router.delete('/post/delete/:id',Post.deletePost)
+router.post('/like/:id',Post.likePost)
+router.post('/comment/:id',Post.commentOnPost)
 
 
 

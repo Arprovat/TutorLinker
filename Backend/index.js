@@ -51,15 +51,21 @@ app.use('/protect',router)
 //google router for google authentication
 //app.use('/auth',Google_router)
 
+const OnlineUser = new Set()
 io.on('connect',(socket)=>{
 console.log('connected');
 socket.on('register',(userId)=>{
     socket.join(userId)
+    socket.userID =userId
     console.log(`User ${userId} joined their room`);
-
+    OnlineUser.add(userId)
+    io.to(userId).emit("onlineUser",Array.from(OnlineUser))
 });
 socket.on('disconnected',()=>{
-    console.log('user disconnected')
+    if(OnlineUser.has(socket.userId)){
+    OnlineUser.delete(socket.userId)
+    io.to(socket.userId).emit("onlineUser",Array.from(OnlineUser))
+    console.log('user disconnected')}
 })
 })
 
