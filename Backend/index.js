@@ -11,7 +11,7 @@ const passport = require('passport');
 const cookieParser = require('cookie-parser');
 const Mongo_config = require('./Config/MongoDB_config/MongoDB_config');
 const router = require('./routers/Protect_router');
-const Google_router = require('./routers/Google_router');
+//const Google_router = require('./routers/Google_router');
 
 const PORT= process.env.PORT||8000;
 
