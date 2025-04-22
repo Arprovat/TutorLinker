@@ -8,13 +8,13 @@ class profile {
 
     static getProfile = async (req, res) => {
         try {
-            const user = req.user
+            const user = req.user.user_id
             if (user) {
                 const profileData = await Profile_model.findOne({ AccId: user._id })
                 if (!profileData) {
                     return res.status(404).json({ message: "profile data not found" })
                 }
-                return res.status(200).json({ message: "profile found", success: true, Data: profileData })
+                return res.status(200).json({ message: "profile found" ,data:user, success: true, Data: profileData })
             }
             return res.status(404).json({ message: "invalid user" })
         } catch (error) {

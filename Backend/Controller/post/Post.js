@@ -1,6 +1,6 @@
 const { sendNotification } = require('../../Helper/SendNotification/SendNotication');
 const CommentModel = require('../../Models/Comment/Comment_model');
-const Connection = require('../../Models/Connection/Connection');
+const Connection = require('../../Models/Connected/Connected');
 const PostModel = require('../../Models/Post/Post_Model');
 const UserModel = require('../../Models/Users_auth/Users_auth_model');
 
