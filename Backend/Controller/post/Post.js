@@ -1,196 +1,237 @@
-const Comment_model = require("../../Models/Comment/Comment_model");
-const Connected = require("../../Models/Connected/Connected");
-const Notification_Model = require("../../Models/Notification/Notification_Model");
-const Post_Model = require("../../Models/Post/Post_Model");
+const { sendNotification } = require('../../Helper/SendNotification/SendNotication');
+const CommentModel = require('../../Models/Comment/Comment_model');
+const Connection = require('../../Models/Connection/Connection');
+const PostModel = require('../../Models/Post/Post_Model');
+const UserModel = require('../../Models/Users_auth/Users_auth_model');
 
-class Post{
-
-    static createPost=async(req,res)=>{
-    try {
-        const io = req.app.get('io')
-        const userId = req.user.user_id
-        const{content,photoUrl,videoUrl} = req.body;
-        if(!content &&(photoUrl|| photoUrl.length===0)&&(videoUrl||videoUrl.length===0) ){
-           return res.status(400).json({message:"invalid information"})
-        }
-        const newPost = new Post_Model({
-            content,
-            photoUrl:photoUrl? Array.isArray(photoUrl)?photoUrl:[photoUrl]:[],
-            videoUrl:videoUrl?Array.isArray(videoUrl)?videoUrl:[videoUrl]:[],
-            userId})
-         await newPost.save();
-        
-        const notifyUser= {
-            userId,
-            message:'you post has been published',
-            type:'post'
-        }
-        await Notification_Model.create(notifyUser)
-        io.to(userId).emit('newNotification',notifyUser,newPost._id)
- 
-        const connectedUser= await Connected.find({
-            $or:[{senderId:userId},{receiverId:userId}],
-            status:'accepted'
-        })
-        const connectedUserIds = connectedUser.map(conn=>{
-            return conn.senderId==userId?conn.receiverId:conn.senderId
-        })
-
-        for (const connectedUserId of connectedUserIds){
-            const notify=new Notification_Model({
-                recipientId: connectedUserId,
-                  senderId: userId,
-                  message: `Your connection just posted a new post!`,
-                  type: 'post'
-            })
-            await notify.save()
-            io.to(connectedUserId).emit("newNotification",notify,newPost._id)
-            
-        }
-        return res.status(201).json(newPost)
-
-    } catch (error) {
-        res.status(500).json({
-            message: "Server error while creating post",
-            error:  error 
-
-        });
-    }
-    }
-    static AllPost = async(req,res)=>{
+class PostController {
+    static async createPost(req, res) {
         try {
-            const {limit=10,page=1}=req.query
-            const userId = req.user.user_id
+            const io = req.app.get('io');
+            const userId = req.user.user_id;
+            const { content, photoUrl = [], videoUrl = [] } = req.body;
 
-            const posts= await Post_Model.find()
-            .sort({createdAt:-1})
-            .skip((page-1*Number(limit)))
-            .limit(Number(limit))
-            .lean
-            
+            if (!content && photoUrl.length === 0 && videoUrl.length === 0) {
+                return res.status(400).json({ message: 'Invalid information' });
+            }
+
+            const newPost = await PostModel.create({
+                content,
+                photoUrl: Array.isArray(photoUrl) ? photoUrl : [photoUrl],
+                videoUrl: Array.isArray(videoUrl) ? videoUrl : [videoUrl],
+                userId,
+            });
+           const notified = new Set()
+            const authorNotif = await sendNotification(
+                userId,
+                userId,
+                'Your post has been published',
+                'system',
+            );
+            io.to(userId).emit('newNotification', authorNotif);
+
+            const connections = await Connection.find({
+                $or: [{ senderId: userId }, { receiverId: userId }],
+                status: 'accepted',
+            });
+            const connectionIds = connections.map(c =>
+                c.senderId.toString() === userId ? c.receiverId : c.senderId
+            );
+const user = await UserModel.findById(userId).select('username')
+            for (const connId of connectionIds) {
+                if (connId !== userId && !notified.has(cid) && connectionIds.includes(connId)) {
+                const notif = await sendNotification(
+                    userId,
+                    connId,
+                    `Your connection ${user.username} just posted a new post!`,
+                    'post',
+                );
+                io.to(connId.toString()).emit('newNotification', notif);
+            }}
+
+            return res.status(201).json(newPost);
+        }catch (err) {
+            console.error(err);
+            return res.status(500).json({ message: 'Server error while creating post' });
+        }
+    }
+
+    static async getAllPosts(req, res) {
+        try {
+            const { limit = 10, page = 1 } = req.query;
+            const userId = req.user.user_id;
+
+            const posts = await PostModel.find()
+                .sort({ createdAt: -1 })
+                .skip((page - 1) * Number(limit))
+                .limit(Number(limit))
+                .lean();
+
             posts.forEach(post => {
-                post.UserLikeInPost=post.likes.include(userId)
-                post.likeCount=post.likes.length;
-                post.countComment= post.comments.length
-
+                post.userLiked = post.likes.includes(userId);
+                post.likeCount = post.likes.length;
+                post.commentCount = post.comments.length;
             });
 
-            return res.status(200).json({
-                data:posts
-            })
-
-        } catch (error) {
-            return res.status(500).json({
-                message:"server error"
-            })
+            return res.status(200).json({ data: posts });
+        } catch (err) {
+            console.error(err);
+            return res.status(500).json({ message: 'Server error fetching posts' });
         }
     }
-    static EditPost =async(req,res)=>{
+
+    static async editPost(req, res) {
         try {
-            const {postId} = req.params.id
-            const {updateData}= req.body;
-            const userId=req.user.user_id
-            if(!userId && Object.keys(updateData) ===0){
-                return res.status(400).json({message:"invalid Data"})
-            }
-            const ExitsPost=await Post_Model.findOne({_id:new ObjectId(postId)})
-            if(!ExitsPost){
-                return res.status(404).json({message:"post not found"})
-            }
-            if(updateData.photoUrl){
-                updateData.photoUrl=[...ExitsPost.photoUrl,...updateData.photoUrl]
-            }
-            if(updateData.videoUrl){
-                updateData.videoUrl=[...updateData.videoUrl,...ExitsPost.videoUrl]
-            }
-            const result = await Post_Model.findOneAndUpdate(
-                    new ObjectId(postId),
-                    {$set:updateData},
-                    {new:true,runValidators:true}
-            )
-            return res.status(200).json({message:'Edit successful',data:result})
-        
-        } catch (error) {
-            return res.status(500).json({
-                message:"server error while editing post"
-            })
-        }
-    }
-    static DeletePost = async(req,res)=>{
-
-        try {
-            const {postId} = req.params;
-
-            if(!postId){
-                return res.status(400).json({message:'invalid data'})
-            }
-
-            await Post_Model.findByIdAndDelete(new ObjectId(postId))
-
-            return res.status(200).json({
-                success:true,
-                message:"successfully delete"
-            })
-        } catch (error) {
-            return res.status(500).json({
-                message:"server error while Deleting post"
-            })
-        }
-
-    }
-    static likeInPost = async(req,res)=>{
-        try {
-            const userId = req.user.user_id
-            const {postId} =req.params.id
-
-            if(postId){
-                return res.status(400).json({message:'invalid data'})
-            }
-
-            const post = await Post_Model.findById(postId)
-            if(!post){
-                return res.status(404).json({message:'post not found'})
-            }
-            const isLike = post.likes.includes(userId)
-            if(isLike){
-                post.likes.pull(userId)
-            }
-            else{
-                post.likes.push(userId)
-            }
-            return res.status(200).json({likeCount:post.likes.length})
-        } catch (error) {
-           return res.status(500).json({message:'Server error while like in post',error:error})
-        }
-    }
-    static comment= async(req,res)=>{
-        try {
+            const { postId } = req.params;
+            const updateData = req.body.updateData || {};
             const userId = req.user.user_id;
-            const {postId} = req.params.id
-            const {text} = req.body
-            
-            if(postId){
-                return res.status(400).json({message:'invalid data'})
-            }
-            const post = await Post_Model.findById(postId)
-            
-                if(!post){
-                    return res.status(404).json({message:'post not found'})
-                }
-                const comment= await Comment_model.create(
-                    {postId,
-                    postType:'GeneralPost',
-                    userId,
-                    text
-                    }
-                )
-                post.comments.push(comment._id)
-                const data = post.comments.populate()
-                return res.status(200).json({data,message:'comment add'})
-        } catch (error) {
-            return res.status(500).json({message:'Server error while comment in post',error:error})
 
+            if (!postId || Object.keys(updateData).length === 0) {
+                return res.status(400).json({ message: 'Invalid data' });
+            }
+
+            const existing = await PostModel.findById(postId);
+            if (!existing) {
+                return res.status(404).json({ message: 'Post not found' });
+            }
+
+            if (updateData.photoUrl) {
+                updateData.photoUrl = [...existing.photoUrl, ...updateData.photoUrl];
+            }
+            if (updateData.videoUrl) {
+                updateData.videoUrl = [...existing.videoUrl, ...updateData.videoUrl];
+            }
+
+            const updated = await PostModel.findByIdAndUpdate(
+                postId,
+                { $set: updateData },
+                { new: true, runValidators: true }
+            );
+
+            return res.status(200).json({ message: 'Edit successful', data: updated });
+        } catch (err) {
+            console.error(err);
+            return res.status(500).json({ message: 'Server error while editing post' });
+        }
+    }
+
+    static async deletePost(req, res) {
+        try {
+            const { postId } = req.params;
+            if (!postId) {
+                return res.status(400).json({ message: 'Invalid data' });
+            }
+            await PostModel.findByIdAndDelete(postId);
+            return res.status(200).json({ success: true, message: 'Post deleted successfully' });
+        } catch (err) {
+            console.error(err);
+            return res.status(500).json({ message: 'Server error while deleting post' });
+        }
+    }
+
+    static async likePost(req, res) {
+        try {
+            const { postId } = req.params;
+            const userId = req.user.user_id;
+            const io = req.app.get('io');
+
+            if (!postId) {
+                return res.status(400).json({ message: 'Invalid data' });
+            }
+
+            const post = await PostModel.findById(postId);
+            if (!post) {
+                return res.status(404).json({ message: 'Post not found' });
+            }
+
+            const alreadyLiked = post.likes.includes(userId);
+            if (alreadyLiked) {
+                post.likes.pull(userId);
+            } else {
+                post.likes.push(userId);
+                // Notify post author if not liking own post
+                if (post.userId.toString() !== userId) {
+                    const user = await UserModel.findById(userId);
+                    const notif = await sendNotification(
+                        userId,
+                        post.userId.toString(),
+                        `${user.username} liked your post`,
+                        'post'
+                    );
+                    io.to(post.userId.toString()).emit('newNotification', notif);
+                }
+            }
+
+            await post.save();
+            return res.status(200).json({ likeCount: post.likes.length, postId });
+        } catch (err) {
+            console.error(err);
+            return res.status(500).json({ message: 'Server error while liking post' });
+        }
+    }
+
+    static async commentOnPost(req, res) {
+        try {
+            const { postId } = req.params;
+            const userId = req.user.user_id;
+            const { text } = req.body;
+            const io = req.app.get('io');
+
+            if (!postId || !text) {
+                return res.status(400).json({ message: 'Invalid data' });
+            }
+
+            const post = await PostModel.findById(postId).populate('comments');
+            if (!post) {
+                return res.status(404).json({ message: 'Post not found' });
+            }
+
+            const comment = await CommentModel.create({ postId, postType: 'GeneralPost', userId, text });
+            post.comments.push(comment._id);
+            await post.save();
+
+            const commenter = await UserModel.findById(userId);
+            const notified = new Set();
+
+            if (post.userId.toString() !== userId) {
+                const notifAuthor = await sendNotification(
+                    userId,
+                    post.userId.toString(),
+                    `${commenter.username} commented on your post`,
+                    'post'
+                );
+                io.to(post.userId.toString()).emit('newNotification', notifAuthor);
+                notified.add(post.userId.toString());
+            }
+
+            const commenterIds = await CommentModel.find({ postId }).distinct('userId');
+            const connections = await Connection.find({
+                $or: [{ senderId: userId }, { receiverId: userId }],
+                status: 'accepted',
+            });
+            const connIds = connections.map(c =>
+                c.senderId.toString() === userId ? c.receiverId.toString() : c.senderId.toString()
+            );
+
+            for (const cid of commenterIds) {
+                if (cid !== userId && !notified.has(cid) && connIds.includes(cid)) {
+                    const userToNotify = await UserModel.findById(cid);
+                    const notif = await sendNotification(
+                        userId,
+                        cid,
+                        `${commenter.username} also commented on a post you commented on`,
+                        'post'
+                    );
+                    io.to(cid).emit('newNotification', notif);
+                }
+            }
+
+            return res.status(200).json({ data: post });
+        } catch (err) {
+            console.error(err);
+            return res.status(500).json({ message: 'Server error while commenting on post' });
         }
     }
 }
-module.exports=Post
+
+module.exports = PostController;
