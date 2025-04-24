@@ -16,7 +16,7 @@ initialState,
 reducers:{
 login:(state,action)=>{
     state.userId=action.payload._id,
-    state.username=action.payload.userId
+    state.username=action.payload.username
     state.isAuth=true
 },
 setSocket:(state,action)=>{
