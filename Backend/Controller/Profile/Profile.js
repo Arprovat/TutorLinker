@@ -8,13 +8,15 @@ class profile {
 
     static getProfile = async (req, res) => {
         try {
-            const user = req.user.user_id
+            const user = req.user._id.toString()
+            console.log("user",user)
             if (user) {
-                const profileData = await Profile_model.findOne({ AccId: user._id })
+                const profileData = await Profile_model.findOne({ AccId: user }).populate('AccId')
+                console.log(profileData)
                 if (!profileData) {
                     return res.status(404).json({ message: "profile data not found" })
                 }
-                return res.status(200).json({ message: "profile found" ,data:user, success: true, Data: profileData })
+                return res.status(200).json({ message: "profile found" , success: true, Data: profileData })
             }
             return res.status(404).json({ message: "invalid user" })
         } catch (error) {
@@ -26,9 +28,10 @@ class profile {
 
     static editProfile = async (req, res) => {
         try {
-            const user = req.user
+            const user = req.user._id.toString()
             const updateData = req.body;
-            const updateProfile = await Update_profile(user._id, updateData)
+            console.log("update",updateData)
+            const updateProfile = await Update_profile(user, updateData)
             if (updateProfile) {
                 return res.status(200).json({
                     message: "update successful",

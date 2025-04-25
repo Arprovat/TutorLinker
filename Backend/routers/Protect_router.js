@@ -4,29 +4,28 @@ const refreshAccessToken = require('../Middleware/RefreshAccessToken/Refresh_acc
 const profile = require('../Controller/Profile/Profile');
 const setAuthHeader = require('../Middleware/SetAuthHeader/SetAuthheader.js');
 const Login = require('../Controller/Login/login.js');
-require('../Config/passport_jwt_config/passport_jwt_config.js')
-const Post = require("../Controller/post/Post.js")
-const router = express.Router()
+require('../Config/passport_jwt_config/passport_jwt_config.js');
+const Post = require("../Controller/post/Post.js");
+const router = express.Router();
 
-router.use(setAuthHeader)
-router.use(refreshAccessToken)
-router.get("/Logout",Login.logout);
-router.use(passport.authenticate('jwt',{session:false}));
+// Public route (no authentication required)
+router.get("/Logout", Login.logout);
 
+// Apply auth-related middlewares to subsequent routes
+router.use(setAuthHeader);         
+router.use(refreshAccessToken);    
+router.use(passport.authenticate('jwt', { session: false })); // JWT auth
 
-router.get('/profile',profile.getProfile);
-router.post("/EditProfile",profile.editProfile);
-router.post("/ChangePassword",profile.changePassword);
-router.post("/DeleteAccount",profile.deleteAccount);
+router.get('/profile', profile.getProfile);
+router.post("/EditProfile", profile.editProfile);
+router.post("/ChangePassword", profile.changePassword);
+router.post("/DeleteAccount", profile.deleteAccount);
 
-router.get('/post',Post.getAllPosts)
-router.post('/CreatePost',Post.createPost)
-router.put('/edit/:id',Post.editPost)
-router.delete('/post/delete/:id',Post.deletePost)
-router.post('/like/:id',Post.likePost)
-router.post('/comment/:id',Post.commentOnPost)
+router.get('/post', Post.getAllPosts);
+router.post('/CreatePost', Post.createPost);
+router.put('/edit/:id', Post.editPost);
+router.delete('/post/delete/:id', Post.deletePost);
+router.post('/like/:id', Post.likePost);
+router.post('/comment/:id', Post.commentOnPost);
 
-
-
-
-module.exports = router
+module.exports = router;

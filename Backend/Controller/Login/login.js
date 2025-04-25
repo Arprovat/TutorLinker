@@ -1,7 +1,8 @@
 const UsersAuthModel = require('../../Models/Users_auth/Users_auth_model');
-const CreateToken = require('../../Helper/CreateToken/CreateToken');
 const jwt = require('jsonwebtoken');
 const transport = require("../../Config/Mail_config/Mail_config");
+const CreateAccessToken = require('../../Helper/CreateAccessToken/CreateAccessToken');
+const CreateRefreshToken = require('../../Helper/CreateRefreshToken/CreateRefreshToken');
 
 
 class Login {
@@ -23,11 +24,11 @@ class Login {
         return res.status(401).json({ message: 'Invalid email or password' });
       }
 
-      const { access_token, refresh_token } = await CreateToken(user);
+      const access_token = await CreateAccessToken(user);
+      const refresh_token =await CreateRefreshToken(user)
 
       const cookieOptions = {
         httpOnly: true,
-        secure: true, 
       };
 
       res.cookie("access_token", access_token, cookieOptions);
@@ -38,6 +39,8 @@ class Login {
       return res.status(200).json({
         message: "Login successful",
         success: true,
+        data:user,
+        refresh_token:refresh_token
       });
     } catch (error) {
       return res.status(500).json({ message: "Authentication failed" });
