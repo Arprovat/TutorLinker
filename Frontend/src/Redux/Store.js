@@ -1,7 +1,8 @@
-import { ConfigureStore } from '@reduxjs/toolkit';
+import { configureStore } from '@reduxjs/toolkit';
 import AuthReducer from './AuthSlice';
 import ProfileReducer from './Profileslice'
-export default ConfigureStore({
+
+export default configureStore({
     reducer:{
         auth:AuthReducer,
         profile:ProfileReducer,

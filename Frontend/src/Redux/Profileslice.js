@@ -5,7 +5,8 @@ export const getProfile =createAsyncThunk('/profile',async()=>{
     const response = await axios.get('http://localhost:8000/protect/profile',{
         withCredentials: true,
     })
-    return response.data.data
+    console.log(response.data)
+    return response.data
 })
 export const editProfile =createAsyncThunk('/editprofile',async(updateData)=>{
     try {
@@ -34,6 +35,7 @@ export const changePassword =createAsyncThunk('/changePassword',async(password)=
 export const profileSlice = createSlice({
     name:'profile',
     initialState:{
+        username:'',
         profile_pic:'',
     cover_pic:'',
     address: '',
@@ -82,19 +84,20 @@ export const profileSlice = createSlice({
     })
     .addCase(getProfile.fulfilled,(state,action)=>{
     state.loading=false,
-    state.profile_pic=action.payload.profile_pic,
-    state.cover_pic=action.payload.cover_pic,
-    state.Address= action.payload.Address,
-    state.Skill= action.payload.Skill,
-    state.education=action.payload.education ,
-    state.experience= action.payload.experience,
-    state.gender= action.payload.gender,
-    state.languages=action.payload.languages ,
-    state.dob=action.payload.dob ,
-    state.contact=action.payload.contact
-    state.relationship=action.payload.relationship,
-    state.religious= action.payload.religious,
-    state.isComplete=action.payload.isComplete
+    state.username=action.payload.Data.AccId.username
+    state.profile_pic=action.payload.Data.profile_pic,
+    state.cover_pic=action.payload.Data.cover_pic,
+    state.Address= action.payload.Data.Address,
+    state.Skill= action.payload.Data.Skill,
+    state.education=action.payload.Data.education ,
+    state.experience= action.payload.Data.experience,
+    state.gender= action.payload.Data.gender,
+    state.languages=action.payload.Data.languages ,
+    state.dob=action.payload.Data.dob ,
+    state.contact=action.payload.Data.contact
+    state.relationship=action.payload.Data.relationship,
+    state.religious= action.payload.Data.religious,
+    state.isComplete=action.payload.Data.isComplete
         })
     .addCase(editProfile.fulfilled,(state,action)=>{
             state.loading=false,
