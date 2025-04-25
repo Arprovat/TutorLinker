@@ -1,6 +1,7 @@
 const Users_auth_model = require("../../Models/Users_auth/Users_auth_model");
 const jwt = require("jsonwebtoken")
-const sendConfirmationEmail = require("../../Helper/EmailForConfirmation/EmailForConfirmation")
+const sendConfirmationEmail = require("../../Helper/EmailForConfirmation/EmailForConfirmation");
+const Profile_model = require("../../Models/User_Profile/User_profile");
 
 const register = async(req,res) =>{
     const {name ,email ,password,isTeacher} = req.body;
@@ -15,6 +16,7 @@ try {
      }
     user=new Users_auth_model({username:name, email,password,role:isTeacher ? "teacher" : "student"})
     await user.save();
+    await Profile_model.create({AccId:user._id})
     const ConfirmationToken = jwt.sign(
         { id: user._id },
         process.env.JWT_SECRET_KEY,

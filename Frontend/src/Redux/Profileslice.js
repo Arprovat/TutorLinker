@@ -1,4 +1,4 @@
-import { createSlice,createAsyncThunk } from "@reduxjs/toolkit";
+import { createSlice,createAsyncThunk, isRejectedWithValue } from "@reduxjs/toolkit";
 import axios from "axios";
 
 export const getProfile =createAsyncThunk('/profile',async()=>{
@@ -9,10 +9,14 @@ export const getProfile =createAsyncThunk('/profile',async()=>{
     return response.data
 })
 export const editProfile =createAsyncThunk('/editprofile',async(updateData)=>{
-    const response = await axios.post('http://localhost:8000/protect/EditProfile',updateData,{
-        withCredentials: true,
-    })
-    return response.data
+    try {
+        const response = await axios.post('http://localhost:8000/protect/EditProfile',updateData,{
+            withCredentials: true,
+        })
+        return response.data
+    } catch (error) {
+        return isRejectedWithValue(error.response.data)
+    }
 })
 export const DeleteAccount =createAsyncThunk('/DeleteAccount',async(userId)=>{
     const response = await axios.post('http://localhost:8000/protect/DeleteAccount',userId,{
@@ -34,8 +38,8 @@ export const profileSlice = createSlice({
         username:'',
         profile_pic:'',
     cover_pic:'',
-    Address: '',
-    Skill: [],
+    address: '',
+    skill: [],
     education: [],
     experience: [],
     gender: '',
@@ -50,7 +54,26 @@ export const profileSlice = createSlice({
     isComplete:false,
     loading:true
     },
-    reducers:{},
+    reducers:{
+        setInfo:(state,action)=>{
+       const {field,value}=action.payload
+       if (Array.isArray(state[field])) {
+        state[field].push(value)
+       }
+        },
+        setAddress:(state,action)=>{
+            state.address = action.payload
+        },
+        setdob:(state,action)=>{
+            state.dob=action.payload
+        },
+        setReligious:(state,action)=>{
+            state.religious=action.payload
+        },
+        setRelationShip:(state,action)=>{
+            state.relationship=action.payload
+        }
+    },
     extraReducers:(builder)=>{
         builder
     .addCase(getProfile.pending, (state) => {
@@ -76,7 +99,28 @@ export const profileSlice = createSlice({
     state.religious= action.payload.Data.religious,
     state.isComplete=action.payload.Data.isComplete
         })
-    },
+    .addCase(editProfile.fulfilled,(state,action)=>{
+            state.loading=false,
+        state.profile_pic=action.payload.Data.profile_pic,
+        state.cover_pic=action.payload.Data.cover_pic,
+        state.address= action.payload.Data.Address,
+        state.skill= action.payload.Data.Skill,
+        state.education=action.payload.Data.education ,
+        state.experience= action.payload.Data.experience,
+        state.gender= action.payload.Data.gender,
+        state.languages=action.payload.Data.languages ,
+        state.dob=action.payload.Data.dob ,
+        state.contact=action.payload.Data.contact
+        state.relationship=action.payload.Data.relationship,
+        state.religious= action.payload.Data.religious,
+        state.isComplete=action.payload.Data.isComplete
+        })
+        .addCase(editProfile.rejected,(state)=>{
+            state.loading =true
+        })
+        
+    }
     
 })
+export const {setAddress,setdob,setInfo,setRelationShip,setReligious}=profileSlice.actions
 export default  profileSlice.reducer

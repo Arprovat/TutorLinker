@@ -13,6 +13,7 @@ const cookieExtractor = (req) => {
 const opts = {
   jwtFromRequest: cookieExtractor,
   secretOrKey: process.env.JWT_SECRET_KEY,
+  ignoreExpiration: false
 };
 
 passport.use(
@@ -21,7 +22,7 @@ passport.use(
         if (!jwt_payload.user_id) {
             return done(null, false, { message: 'Invalid token payload' });
         }
-        const user = await Users_auth_model.findById(jwt_payload.user_id);  
+        const user = await Users_auth_model.findById(jwt_payload.user_id); 
         if (!user) {
             return done(null, false, { message: 'User not found' }); 
         }
