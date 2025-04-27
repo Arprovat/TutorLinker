@@ -8,6 +8,10 @@ import { useOutletContext } from "react-router-dom"
 import axios from "axios"
 import { toast ,ToastContainer} from "react-toastify" 
 import { useNavigate } from "react-router-dom"
+import { useDispatch } from 'react-redux';
+import { login } from '../../Redux/AuthSlice';
+
+
 const Login = () => {
   const {theme} = useOutletContext()
   const [email, setEmail] = useState('');
@@ -16,6 +20,7 @@ const Login = () => {
   const [isTeacher, setIsTeacher] = useState(false);
   const [errors, setErrors] = useState({ email: '', password: '' });
   const navigate = useNavigate()
+  const dispatch =useDispatch()
   const validatePassword = (value) => {
     if (value.length < 8) {
       return 'Password must be at least 8 characters long';
@@ -37,12 +42,14 @@ const Login = () => {
     });
 
     if (!emailError && !passwordError) {
-      console.log('Form submitted:', { email, password, isTeacher });
       const response = await axios.post("http://localhost:8000/api/login",
        { email, password, isTeacher },{withCredentials: true})
       if(response.status === 200){
+        console.log(response.data)
+        localStorage.setItem('refresh_token',response.data.refresh_token)
+        dispatch(login(response.data.data))
         toast.success(response.data.message)
-        navigate("/profile")
+        navigate("/main")
       }else{
         toast.error(response.data.message)
       }

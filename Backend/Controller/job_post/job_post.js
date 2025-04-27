@@ -3,6 +3,7 @@ const job_Application_model = require("../../Models/Job-Application/job_Applicat
 const jobPost_Model = require("../../Models/JobPost/jobPost_Model")
 const Users_auth_model = require("../../Models/Users_auth/Users_auth_model")
 const moment =require('moment')
+
 class jobPost {
     static async createPost(req, res) {
         try {
@@ -38,6 +39,7 @@ class jobPost {
                 }
             )
             const authorNotif = await SendNotification(
+
                 user,
                 user,
                 'Your post has been published',
@@ -123,6 +125,8 @@ class jobPost {
             const user_id = req.user.user_id.toString()
             const {resumeUrl}=req.body
             const io = req.app.get('io')
+
+
             if(!postId&&!user_id){
                 return res.status(400).json({message:'invalid request'})
             }
@@ -159,6 +163,7 @@ class jobPost {
             )
 io.to(existPost.userId.toString()).emit('newNotification',notify)
 return res.status(200).json({message: "Apply successful",Data:application})
+
             
         } catch (error) {
             return res.status(500).json({ message: 'Server error while creating post' });
@@ -168,3 +173,4 @@ return res.status(200).json({message: "Apply successful",Data:application})
 }
 
 module.exports = jobPost
+

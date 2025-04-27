@@ -1,3 +1,4 @@
+
 import { useDispatch, useSelector } from "react-redux";
 import { Camera } from "lucide-react";
 import SetInfo from "../SetInfo/SetInfo";
@@ -111,7 +112,6 @@ const handleSave=()=>{
                     </button>
                 </div>
             </div>
-        </div>
     );
 };
 
