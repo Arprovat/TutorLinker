@@ -43,12 +43,13 @@ const router = createBrowserRouter(
                     path:'JobFeed',
                     element:<JobFeed></JobFeed>
                    }
-                ]
+                ],
             },
             {
                     path:'EditProfile',
                     element:<EditProfile></EditProfile>
             }
+            
         ]
     },
     
