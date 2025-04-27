@@ -4,14 +4,22 @@ const mongoose = require('mongoose');
 const jobPostSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   photoUrl: { type: String },
-  videoUrl: { type: String },
-  content: { type: String, required: true },
+  description: { type: String, required: true },
   applicationId: [{ type: mongoose.Schema.Types.ObjectId, ref: 'JobApplication' }],
   jobType: { type: String, enum: ['Full-time', 'Part-time', 'Temporary'], required: true },
-  location: { type: String },
-  
-  deadline: { type: Date },
-  salary: { type: String },
+  location: { type: String, require:true},
+  coordinates:{
+    type:{
+      type:String,
+      enum:['point'],
+    },
+    coordinates:{
+      type:[Number]
+    }
+  },
+  workhours:{type:String,require:true},
+  deadline: { type: Date,require:true },
+  salary: { type: String, require:true},
 },{timestamps:true});
-
+jobPostSchema.index({coordinates:'2dsphere'})
 module.exports = mongoose.model('JobPost', jobPostSchema);
