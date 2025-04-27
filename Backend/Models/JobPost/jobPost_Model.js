@@ -13,13 +13,15 @@ const jobPostSchema = new mongoose.Schema({
       type:String,
       enum:['point'],
     },
-    coonrdinates:{
+    coordinates:{
       type:[Number]
-    }
+    
   },
   workhours:{type:String,require:true},
   deadline: { type: Date,require:true },
   salary: { type: String, require:true},
 },{timestamps:true});
+
 jobPostSchema.index({coonrdinates:'2dsphere'})
 module.exports = mongoose.model('JobPost', jobPostSchema);
+

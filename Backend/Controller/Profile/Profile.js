@@ -6,7 +6,7 @@ class profile {
 
 
 
-    static getProfile = async (req, res) => {
+    static  async getProfile  (req, res) {
         try {
             const user = req.user._id.toString()
             console.log("user",user)
@@ -26,7 +26,7 @@ class profile {
 
 
 
-    static editProfile = async (req, res) => {
+    static  async editProfile (req, res) {
         try {
             const user = req.user._id.toString()
             const updateData = req.body;
@@ -50,7 +50,7 @@ class profile {
 
 
 
-    static changePassword = async (req, res) => {
+    static  async changePassword  (req, res)  {
 
         try {
             const { oldPassword, newPassword } = req.body;
@@ -79,7 +79,7 @@ class profile {
 
 
 
-    static deleteAccount = async (req, res) => {
+    static  async deleteAccount  (req, res)  {
         try {
             const { password } = req.body;
             if (!password) {
@@ -103,6 +103,39 @@ class profile {
     }
 
 
-    static getAllUsers = (req, res) => { }
+    static async SearchUser  (req, res)  {
+try {
+    const q = req.query
+        const regex = new RegExp('^' + q, 'i');
+       const pipeline =[
+        {
+            $lookup:{
+                from:'User',
+                localField:'AccId',
+                foreignField:'_id',
+                as:'user'
+            }
+        },
+        { $unwind: '$user' }, 
+        { $match: { 'user.username': { $regex: regex } } },
+        {
+            $project: {
+              _id: 0,
+              username: '$user.username',
+              photoUrl: '$profile_pic'
+            }
+          },
+         
+          { $limit: 10 }
+       ]
+
+       const result = await User_profile.aggregate(pipeline)
+       res.status(200).json({  Data: result });
+     
+} catch (error) {
+    return res.status(500).json({ message: "Internal server error" });
+
+}
+    }      
 }
 module.exports = profile

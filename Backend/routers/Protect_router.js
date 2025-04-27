@@ -6,6 +6,7 @@ const setAuthHeader = require('../Middleware/SetAuthHeader/SetAuthheader.js');
 const Login = require('../Controller/Login/login.js');
 require('../Config/passport_jwt_config/passport_jwt_config.js');
 const Post = require("../Controller/post/Post.js");
+const jobPost = require('../Controller/job_post/job_post.js')
 const router = express.Router();
 
 // Public route (no authentication required)
@@ -20,6 +21,7 @@ router.get('/profile', profile.getProfile);
 router.post("/EditProfile", profile.editProfile);
 router.post("/ChangePassword", profile.changePassword);
 router.post("/DeleteAccount", profile.deleteAccount);
+router.get('/search',profile.SearchUser)
 
 router.get('/post', Post.getAllPosts);
 router.post('/CreatePost', Post.createPost);
@@ -27,5 +29,13 @@ router.put('/edit/:id', Post.editPost);
 router.delete('/post/delete/:id', Post.deletePost);
 router.post('/like/:id', Post.likePost);
 router.post('/comment/:id', Post.commentOnPost);
+
+
+router.post('createJObPost',jobPost.createPost)
+router.get('/allJobPost',jobPost.AllPost)
+router.get('/getPost/:postId',jobPost.getPost)
+router.get('/Applicant/:postId',jobPost.AllApplicant)
+router.post('/apply/:postId',jobPost.applyOnJob)
+
 
 module.exports = router;
