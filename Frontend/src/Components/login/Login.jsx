@@ -47,6 +47,7 @@ const Login = () => {
       if(response.status === 200){
         console.log(response.data)
         localStorage.setItem('refresh_token',response.data.refresh_token)
+        localStorage.setItem('role',response.data.data.role)
         dispatch(login(response.data.data))
         toast.success(response.data.message)
         navigate("/main")

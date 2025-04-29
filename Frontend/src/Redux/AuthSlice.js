@@ -3,7 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState ={
     userId:null,
     username:'',  
-      role:'',
+    role:'',
     isAuth:false,
     socket:null,
     onlineUser:[]
@@ -17,6 +17,7 @@ reducers:{
 login:(state,action)=>{
     state.userId=action.payload._id,
     state.username=action.payload.username
+    state.role=action.payload.role
     state.isAuth=true
 },
 setSocket:(state,action)=>{

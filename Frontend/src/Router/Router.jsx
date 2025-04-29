@@ -1,5 +1,5 @@
 import { createBrowserRouter } from "react-router-dom";
-import Landing_page from "../Pages/Landing_Page/Landing_page"; 
+import Landing_page from "../Pages/Landing_Page/Landing_page";
 import Login from "../Components/login/Login";
 import Home from "../Pages/Home/Home";
 import Signup from "../Components/Signup/Signup";
@@ -9,6 +9,9 @@ import EditProfile from "../Components/EditProfile/EditProfile";
 import HomeScreen from "../Components/HomeScreen/HomeScreen";
 import PostFeed from "../Components/Post-feed/Post-feed";
 import JobFeed from "../Components/Job-Feed/Job-Feed";
+import Job_Post from "../Components/Job_post/Job_post";
+import ProfilePage from "../Pages/ProfilePage/ProfilePage";
+import Profile from "../Components/Profile/Profile";
 const router = createBrowserRouter(
     [{
         path: '/',
@@ -30,29 +33,46 @@ const router = createBrowserRouter(
 
     },
     {
-        path:'/main',
-        element:<PrivateRoute><Main_page></Main_page></PrivateRoute>,
-        children:[
+        path: '/main',
+        element: <PrivateRoute allowedUser={['student', 'parent', 'teacher']}><Main_page></Main_page></PrivateRoute>,
+        children: [
             {
-                path:'',
-                element:<HomeScreen></HomeScreen>,
-                children:[
-                   {path:'',
-                    element:<PostFeed></PostFeed>
-                   },{
-                    path:'JobFeed',
-                    element:<JobFeed></JobFeed>
-                   }
-                ],
+                path: '',
+                element: <HomeScreen></HomeScreen>,
+                children: [
+                    {
+                        path: '',
+                        element: <PostFeed></PostFeed>
+                    }, {
+                        path: 'JobFeed',
+                        element: <PrivateRoute allowedUser={['teacher']}><JobFeed></JobFeed></PrivateRoute>
+                    }
+                ]
             },
             {
-                    path:'EditProfile',
-                    element:<EditProfile></EditProfile>
+                path: 'EditProfile',
+                element: <PrivateRoute allowedUser={['student', 'parent', 'teacher']}><EditProfile></EditProfile></PrivateRoute>
+            },
+
+            {
+                path: 'profile',
+                element: <ProfilePage></ProfilePage>,
+                children: [
+                    {
+                        path:'',
+                        element:<Profile></Profile>
+                    },
+                    {
+                        path: 'jobPost',
+                        element: <PrivateRoute allowedUser={['student', 'parent']}><Job_Post></Job_Post></PrivateRoute>
+                    },
+
+                ]
             }
             
         ]
     },
-    
+
 
     ]
 )
