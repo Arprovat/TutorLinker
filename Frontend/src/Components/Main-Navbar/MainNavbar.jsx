@@ -28,7 +28,7 @@ const MainNavbar = () => {
           <div className="md:hidden">
            <Link to='/search'> <BiSearch className="h-6 w-6 text-gray-600 cursor-pointer" /></Link>
           </div>
-          <Link to="/profile">
+          <Link to="profile">
             <FaUserCircle className="h-8 w-8 text-gray-500" />
           </Link>
           

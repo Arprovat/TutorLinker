@@ -203,7 +203,7 @@ export default function Job_Post() {
                             </div>
 
                             <div className="flex justify-end space-x-4">
-                                <button type="button" className="btn">
+                                <button type="button" onClick={()=>Navigate(-1)} className="btn">
                                     Cancel
                                 </button>
                                 <button className="btn bg-blue-900 text-lg text-white rounded-xl font-semibold px-3 " type="submit" disabled={isSubmitting}>
