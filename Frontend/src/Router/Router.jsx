@@ -9,6 +9,8 @@ import EditProfile from "../Components/EditProfile/EditProfile";
 import HomeScreen from "../Components/HomeScreen/HomeScreen";
 import PostFeed from "../Components/Post-feed/Post-feed";
 import JobFeed from "../Components/Job-Feed/Job-Feed";
+import Job_Post from "../Components/Job_post/Job_post";
+import ProfilePage from "../Pages/ProfilePage/ProfilePage";
 const router = createBrowserRouter(
     [{
         path: '/',
@@ -31,7 +33,7 @@ const router = createBrowserRouter(
     },
     {
         path:'/main',
-        element:<PrivateRoute><Main_page></Main_page></PrivateRoute>,
+        element:<PrivateRoute allowedUser={['student', 'parent','teacher']}><Main_page></Main_page></PrivateRoute>,
         children:[
             {
                 path:'',
@@ -41,13 +43,21 @@ const router = createBrowserRouter(
                     element:<PostFeed></PostFeed>
                    },{
                     path:'JobFeed',
-                    element:<JobFeed></JobFeed>
+                    element:<PrivateRoute allowedUser={['teacher']}><JobFeed></JobFeed></PrivateRoute>
                    }
                 ]
             },
             {
                     path:'EditProfile',
-                    element:<EditProfile></EditProfile>
+                    element:<PrivateRoute allowedUser={['student', 'parent','teacher']}><EditProfile></EditProfile></PrivateRoute>
+            },
+            {
+                path:'jobPost',
+                element:<PrivateRoute allowedUser={['student', 'parent']}><Job_Post></Job_Post></PrivateRoute>
+            },
+            {
+                path:'profile',
+                element:<ProfilePage></ProfilePage>
             }
         ]
     },
