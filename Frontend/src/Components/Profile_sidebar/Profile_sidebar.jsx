@@ -2,11 +2,11 @@ import { User } from "lucide-react";
 import { motion } from 'framer-motion';
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
+import Education from "../Education/Education";
 
 
 const Profile_sidebar = () => {
-  const {username, education, Skill, loading, error } = useSelector((state) => state.profile);
-  const { Address } = useSelector((state) => state.profile); // Access Address from state
+  const {username,address, education, Skill, loading, error } = useSelector((state) => state.profile);
 
   
 
@@ -30,12 +30,12 @@ const Profile_sidebar = () => {
       </div>
       <div>
         <div className="space-y-4">
-          <p>{Address || 'No location provided'}</p>
+          <p>{address || 'No location provided'}</p>
           <div>
             <h3 className="font-medium text-gray-500 mb-1">Education</h3>
             {education && education.length > 0 ? (
-              education.map((edu, index) => (
-                <p key={index}>{edu}</p> 
+              education.map((edu) => (
+                <Education key={edu._id} edu={edu}/>
               ))
             ) : (
               <p>No education information provided.</p>

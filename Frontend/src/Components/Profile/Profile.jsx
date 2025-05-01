@@ -1,15 +1,26 @@
 
-import { useState } from "react"
-import { PenLine, MapPin, Briefcase, GraduationCap, Languages, Code, Plus } from "lucide-react"
+import { useEffect, useState } from "react"
+import { PenLine, MapPin, Languages, Code, Plus } from "lucide-react"
 import PostCard from "../postCard/PostCard";
 import Job_card from "../job_card/Job_card";
 import { Link } from "react-router-dom";
 import Post from "../post/Post";
+import Education from "../Education/Education";
+import { useDispatch, useSelector } from "react-redux";
+import Experience from "../Experience/Experience";
+import { getUserPost } from "../../Redux/PostSlice";
 
 export default function Profile() {
     const [activeTab, setActiveTab] = useState("posts")
     const [OpenModal, setOpenModal] = useState(false)
-
+    const {userPost} = useSelector((state)=>state.post)
+    const {username,address,languages,experience, education, skill} = useSelector((state) => state.profile);
+    const dispatch=useDispatch()
+    console.log("user",userPost)
+    useEffect(()=>{
+        dispatch(getUserPost())
+    },[])
+    
     return (
         <div className="flex flex-col min-h-screen bg-gray-50">
             <div className="relative w-full h-48 md:h-64 bg-gray-200">
@@ -41,10 +52,10 @@ export default function Profile() {
                             </div>
 
                             <div className="mt-4 text-center md:text-left">
-                                <h1 className="text-2xl font-bold text-black">John Doe</h1>
+                                <h1 className="text-2xl font-bold text-black">{username}</h1>
                                 <div className="flex items-center justify-center md:justify-start text-gray-500 mt-1">
                                     <MapPin className="h-4 w-4 mr-1" />
-                                    <span>San Francisco, CA</span>
+                                    <span>{address}</span>
                                 </div>
                             </div>
 
@@ -52,45 +63,25 @@ export default function Profile() {
                                 <div>
                                     <h1 className="text-2xl font-semibold">Education</h1>
                                 </div>
-                                <div className="space-y-4">
-                                    <div className="flex gap-3">
-                                        <GraduationCap className="h-5 w-5 text-gray-500 mt-1" />
-                                        <div>
-                                            <h3 className="font-medium">Stanford University</h3>
-                                            <p className="text-sm text-gray-500">Computer Science, 2018-2022</p>
-                                        </div>
-                                    </div>
-                                    <div className="flex gap-3">
-                                        <GraduationCap className="h-5 w-5 text-gray-500 mt-1" />
-                                        <div>
-                                            <h3 className="font-medium">MIT</h3>
-                                            <p className="text-sm text-gray-500">Masters in AI, 2022-2024</p>
-                                        </div>
-                                    </div>
-                                </div>
+                                {
+                                    education?education.map(edu=>(
+                                    <Education key={edu._id} edu={edu}></Education>
+                                    )):"not provided yet"
+                                }
                             </div>
 
                             <div className="w-full  bg-white text-black p-4 rounded-2xl mt-4">
                                 <div>
                                     <h1 className="text-2xl font-semibold">Experience</h1>
                                 </div>
-                                <div className="space-y-4 mt-4">
-                                    <div className="flex gap-3">
-                                        <Briefcase className="h-5 w-5 text-gray-500 mt-1" />
-                                        <div>
-                                            <h3 className="font-medium">Senior Developer</h3>
-                                            <p className="text-sm text-gray-500">Google, 2022-Present</p>
-                                        </div>
-                                    </div>
-                                    <div className="flex gap-3">
-                                        <Briefcase className="h-5 w-5 text-gray-500 mt-1" />
-                                        <div>
-                                            <h3 className="font-medium">Software Engineer</h3>
-                                            <p className="text-sm text-gray-500">Facebook, 2020-2022</p>
-                                        </div>
-                                    </div>
+                                {
+                                    experience?experience.map(ex=>(
+                                        <Experience key={ex._id} experience={ex}></Experience>
+                                    )):"Not provided yet"
+                                }
+                                    
                                 </div>
-                            </div>
+                            
 
                             <div className="w-full  bg-white text-black p-4 rounded-2xl mt-4">
                                 <div>
@@ -100,9 +91,12 @@ export default function Profile() {
                                     <div className="flex gap-3">
                                         <Languages className="h-5 w-5 text-gray-500 mt-1" />
                                         <div className="flex flex-wrap gap-2">
-                                            <span className="bg-gray-100 px-2 py-1 rounded-full text-sm">react</span>
-                                            <span className="bg-gray-100 px-2 py-1 rounded-full text-sm">react</span>
-                                            <span className="bg-gray-100 px-2 py-1 rounded-full text-sm">react</span>
+                                         {
+                                            languages?languages.map((lan,inx)=>(
+
+                                                <span key={inx} className="bg-gray-100 px-2 py-1 rounded-full text-sm">{lan}</span>
+                                            )):"not provided"
+                                         }  
                                         </div>
                                     </div>
                                 </div>
@@ -116,10 +110,12 @@ export default function Profile() {
                                     <div className="flex gap-3">
                                         <Code className="h-5 w-5 text-gray-500 mt-1" />
                                         <div className="flex flex-wrap gap-2">
-                                            <span className="bg-gray-100 px-2 py-1 rounded-full text-sm">react</span>
-                                            <span className="bg-gray-100 px-2 py-1 rounded-full text-sm">AWS</span>
-                                            <span className="bg-gray-100 px-2 py-1 rounded-full text-sm">Node js</span>
-                                            <span className="bg-gray-100 px-2 py-1 rounded-full text-sm">react</span>
+                                          {
+                                            skill?skill.map((s,inx)=>(
+
+                                                <span key={inx} className="bg-gray-100 px-2 py-1 rounded-full text-sm">{s}</span>
+                                            )):"not Provided yet"
+                                          } 
 
 
                                         </div>
@@ -166,7 +162,12 @@ export default function Profile() {
 
 </div>
                                     <div className="space-y-4">
-                                        <PostCard></PostCard>
+                                      {
+                                        userPost?userPost.map(post=>(
+                                            
+                                            <PostCard key={post._id} post={post} username={username}></PostCard>
+                                        )):'not provided yet'
+                                      }
 
                                     </div>
                                 </div>

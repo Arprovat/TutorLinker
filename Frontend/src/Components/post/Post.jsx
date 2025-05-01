@@ -1,101 +1,155 @@
-import { Upload } from "lucide-react";
+import { Upload, X } from "lucide-react";
 import PropTypes from "prop-types";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import UploadFile from "../../Helper/updateFile/UpdateFile";
 import { useState } from "react";
-import {motion} from 'framer-motion'
+import { motion } from "framer-motion";
+import { createPost } from "../../Redux/PostSlice";
+import { useNavigate } from "react-router-dom";
+
 const Post = ({ isOpen, isClose }) => {
-    const { username } = useSelector((state) => state.profile)
-    const [formData, setFormData] = useState({
-       content:'',
-       photoUrl:[],
-       videoUrl:[]
-      })
+  const { username } = useSelector((state) => state.profile);
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
+  const [formData, setFormData] = useState({
+    content: "",
+    photoUrl: [],
+    videoUrl: []
+  });
+ const handlePost=()=>{
+    const response =dispatch(createPost(formData))
+   if(response.payload.success){
+navigate(-1)
+setFormData({
+    content: "",
+    photoUrl: [],
+    videoUrl: []
+})
+   }
 
-      const handleInput=(e)=>{
-setFormData((prev)=>({ ...prev, ['content']: e.target.value }))
-      }
+ }
+  const handleInput = (e) => {
+    setFormData((prev) => ({ ...prev, content: e.target.value }));
+  };
 
-      const handleFileUpload=async (e)=>{
+  const handleFileUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
 
-        const file =e.target.files[0]
-        if(!file){
-            return
-        }
-        const result=await UploadFile(file)
-     console.log(result)
-        setFormData((prev)=>({
-            ...prev,
-            photoUrl:result.format !=='mp4'? [...prev.photoUrl,result.url]:prev.photoUrl,
-            videoUrl:result.format ==='mp4'?[...prev.videoUrl.result.url]:prev.videoUrl
-        }))
+    const result = await UploadFile(file);
+    const { url, format } = result;
 
-      }
-    return (
-        <div >
-            <dialog id="my_modal_5" className={`${isOpen ? 'modal-open' : ''} bg-white modal modal-bottom sm:modal-middle`}>
-                <div className="modal-box px-3.5 bg-white relative">
-                    <div>
-                        <h1 className="font-bold pb-3 border-b-1 text-xl">Create Post</h1>
-                        <div className="pt-2 flex gap-3">
-                            <img src="" className="w-8 h-8 rounded-full object-cover" alt="" />
-                            <h3 className="font-semibold text-md">{username}</h3>
-                        </div>
-                        <form>
+    if (format === "mp4") {
+      setFormData((prev) => ({
+        ...prev,
+        videoUrl: [...prev.videoUrl, url]
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        photoUrl: [...prev.photoUrl, url]
+      }));
+    }
+  };
 
-                            <textarea
-                                id="description"
-                                name="description"
-                                placeholder="What's on your mind..."
-                                rows={4}
-                                value={formData.content}
-                                onChange={handleInput}
-                                className="w-full py-2 h-22 resize-none border-none outline-none px-4 text-clip focus-within::ring-gray-300"
-                                required
-                            />
-                           <label htmlFor="photoFile" 
-                             className="flex flex-col items-center justify-center w-full h-22 border-2 border-dashed rounded-lg cursor-pointer bg-slate-50 hover:bg-slate-100"
-                             >
-                           <div className="  flex flex-col items-center justify-center w-full  rounded-2xl">
-                                <Upload className="w-8 h-8 mb-2 text-slate-500 dark:text-slate-400" />
-                                <p className="mb-2 text-sm text-slate-500 dark:text-slate-400">
-                                    <span className="font-semibold">Click to upload</span> or drag and drop
-                                </p>
-                            </div>
-                            <input
-                                 type="file"
-                                 name="photoFile"
-                                    id="photoFile"
-                                className="hidden"
-                                onChange={handleFileUpload}
-                                />
-                           </label>
-                          
-                          <div className="flex h-14 py-2">
-                            {
-                                formData.photoUrl?.map((photo,index)=>{
-                            <div className=" relative " key={index}>
-                                <img src={photo} alt=""  />
-                                <button className="absolute top[-2%] left[100%]">X</button>
-                            </div>
-                                })
-                            }
-                          </div>
-                        </form>
-                        <motion.button whileHover={{scale:0.95}} whileTap={{scale:1}} className="  cursor-pointer h-10  text-white text-2xl font-semibold rounded-2xl w-full bg-blue-700 hover:bg-blue-800">Post</motion.button>
-                    </div>
-                    <div className="modal-action">
-                        <form method="dialog" className="modal-backdrop">
-                            <button onClick={isClose} className="btn btn-sm btn-circle  btn-ghost hover:bg-gray-200 text-black absolute right-2 top-2">✕</button>
-                        </form>
-                    </div>
-                </div>
-            </dialog>
+  const removeMedia = (type, index) => {
+    setFormData((prev) => ({
+      ...prev,
+      [type]: prev[type].filter((_, i) => i !== index)
+    }));
+  };
+
+  const canPost = formData.content.trim() || formData.photoUrl.length > 0 || formData.videoUrl.length > 0;
+
+  return (
+    <dialog
+      id="post_modal"
+      className={`modal modal-bottom sm:modal-middle ${isOpen ? "modal-open" : ""}`}
+    >
+      <div className="modal-box relative bg-white p-6 rounded-2xl shadow-lg">
+        <button
+          onClick={isClose}
+          className="btn btn-sm btn-circle btn-ghost absolute right-4 top-4"
+        >
+          <X />
+        </button>
+        <h1 className="text-2xl font-bold mb-4">Create Post</h1>
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 bg-gray-200 rounded-full" />
+          <span className="font-semibold">{username}</span>
         </div>
-    );
+
+        <textarea
+          placeholder="What's on your mind..."
+          rows={4}
+          value={formData.content}
+          onChange={handleInput}
+          className="w-full p-4 mb-4 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-300"
+        />
+
+        <label
+          htmlFor="mediaUpload"
+          className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 mb-4"
+        >
+          <Upload className="w-8 h-8 mb-2 text-gray-500" />
+          <p className="text-sm text-gray-500">
+            <span className="font-semibold">Click to upload</span> or drag and drop
+          </p>
+          <input
+            type="file"
+            id="mediaUpload"
+            className="hidden"
+            accept="image/*,video/mp4"
+            onChange={handleFileUpload}
+          />
+        </label>
+
+        {(formData.photoUrl.length > 0 || formData.videoUrl.length > 0) && (
+          <div className="grid grid-cols-4 gap-2 mb-4">
+            {formData.photoUrl.map((src, idx) => (
+              <div key={idx} className="relative">
+                <img src={src} alt="preview" className="w-full h-20 object-cover rounded-lg" />
+                <button
+                  onClick={() => removeMedia('photoUrl', idx)}
+                  className="absolute -top-2 -right-2 bg-white rounded-full p-1 shadow"
+                >
+                  <X className="w-4 h-4 text-red-500" />
+                </button>
+              </div>
+            ))}
+            {formData.videoUrl.map((src, idx) => (
+              <div key={idx} className="relative">
+                <video src={src} controls className="w-full h-20 object-cover rounded-lg" />
+                <button
+                  onClick={() => removeMedia('videoUrl', idx)}
+                  className="absolute -top-2 -right-2 bg-white rounded-full p-1 shadow"
+                >
+                  <X className="w-4 h-4 text-red-500" />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          disabled={!canPost}
+          onClick={()=>handlePost()}
+          className={`w-full py-3 text-white font-semibold rounded-2xl ${
+            canPost ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-300 cursor-not-allowed'
+          }`}
+        >
+          Post
+        </motion.button>
+      </div>
+    </dialog>
+  );
 };
+
 Post.propTypes = {
-    isOpen: PropTypes.bool,
-    isClose: PropTypes.func
-}
+  isOpen: PropTypes.bool.isRequired,
+  isClose: PropTypes.func.isRequired
+};
+
 export default Post;

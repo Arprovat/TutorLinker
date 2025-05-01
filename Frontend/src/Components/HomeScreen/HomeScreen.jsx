@@ -1,22 +1,23 @@
 import { Outlet } from "react-router-dom";
-import Profiler_sidebar from '../Profile_sidebar/Profile_sidebar'
-import Notification from '../Notification/Notification'
-const HomeScreen=()=>{
+import Profile_sidebar from '../Profile_sidebar/Profile_sidebar'; // Fixed component name (likely typo)
+import Notification from '../Notification/Notification';
 
-return(
-<div className="grid grid-cols-1 mx-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-    <div className="hidden md:block">
-        <Profiler_sidebar />
-    </div>
+const HomeScreen = () => {
+  return (
+    <div className="grid h-screen grid-cols-1 mx-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      <div className="hidden md:block h-[calc(100vh-2rem)]"> {/* Fixed height */}
+        <Profile_sidebar />
+      </div>
 
-    <div className="col-span-1 md:col-span-2">
-        <Outlet></Outlet>
-    </div>
+      <div className="col-span-1 h-[calc(100vh-2rem)] overflow-y-auto md:col-span-2">
+        <Outlet />
+      </div>
 
-    <div className="hidden lg:block">
+      <div className="hidden lg:block h-[calc(100vh-2rem)] overflow-y-auto">
         <Notification />
+      </div>
     </div>
-</div>
-);
-}
-export default HomeScreen
+  );
+};
+
+export default HomeScreen;

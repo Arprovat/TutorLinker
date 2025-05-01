@@ -6,10 +6,11 @@ import { getProfile } from "../../Redux/Profileslice";
 import { Outlet } from "react-router-dom";
 const Main_page = () => {
     const dispatch=useDispatch()
-    
+
     useEffect(() => {
         dispatch(getProfile()); 
       },[]);
+
     return (
         <div className="min-h-screen relative bg-gray-100">
             <MainNavbar></MainNavbar>
@@ -18,5 +19,4 @@ const Main_page = () => {
         </div>
     );
 };
-
-export default Main_page;
+export default Main_page
