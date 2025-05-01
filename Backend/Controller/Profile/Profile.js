@@ -9,10 +9,8 @@ class profile {
     static  async getProfile  (req, res) {
         try {
             const user = req.user._id.toString()
-            console.log("user",user)
             if (user) {
                 const profileData = await Profile_model.findOne({ AccId: user }).populate('AccId')
-                console.log(profileData)
                 if (!profileData) {
                     return res.status(404).json({ message: "profile data not found" })
                 }

@@ -29,7 +29,7 @@ router.put('/edit/:id', Post.editPost);
 router.delete('/post/delete/:id', Post.deletePost);
 router.post('/like/:id', Post.likePost);
 router.post('/comment/:id', Post.commentOnPost);
-
+router.get('/userPost',Post.getUserPost)
 
 router.post('createJObPost',jobPost.createPost)
 router.get('/allJobPost',jobPost.AllPost)

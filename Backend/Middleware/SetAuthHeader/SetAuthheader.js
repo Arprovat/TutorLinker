@@ -2,7 +2,6 @@ const jwt = require('jsonwebtoken');
 
 const setAuthHeader = (req, res, next) => {
   const access_token = req.cookies.access_token;
-  console.log("access",access_token)
   if (!access_token) {
     return res.status(401).json({ message: "Access token not found in cookies" });
   }

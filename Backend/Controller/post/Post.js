@@ -1,79 +1,128 @@
+const SendNotification = require('../../Helper/SendNotification/SendNotication');
 const { sendNotification } = require('../../Helper/SendNotification/SendNotication');
 const CommentModel = require('../../Models/Comment/Comment_model');
 const Connection = require('../../Models/Connected/Connected');
 const PostModel = require('../../Models/Post/Post_Model');
 const UserModel = require('../../Models/Users_auth/Users_auth_model');
 
-class PostController {
+class Post {
     static async createPost(req, res) {
         try {
             const io = req.app.get('io');
-            const userId = req.user.user_id;
+            const userId = req.user._id.toString();
             const { content, photoUrl = [], videoUrl = [] } = req.body;
 
-            if (!content && photoUrl.length === 0 && videoUrl.length === 0) {
-                return res.status(400).json({ message: 'Invalid information' });
+            // Validate post content
+            if (!content?.trim() && photoUrl.length === 0 && videoUrl.length === 0) {
+                return res.status(400).json({ message: 'Post must contain content, photos, or videos' });
             }
 
+            // Create post
             const newPost = await PostModel.create({
-                content,
+                content: content?.trim(),
                 photoUrl: Array.isArray(photoUrl) ? photoUrl : [photoUrl],
                 videoUrl: Array.isArray(videoUrl) ? videoUrl : [videoUrl],
                 userId,
             });
-           const notified = new Set()
-            const authorNotif = await sendNotification(
-                userId,
-                userId,
-                'Your post has been published',
-                'system',
+
+            // Get user data for notifications
+            const user = await UserModel.findById(userId).select('username').lean();
+            if (!user) {
+                return res.status(404).json({ message: 'User not found' });
+            }
+
+            // Corrected notification call
+            await SendNotification(
+                userId, // senderId
+                userId, // receiverId
+                'Your post has been published', // message
+                'system' // type
             );
-            io.to(userId).emit('newNotification', authorNotif);
 
             const connections = await Connection.find({
                 $or: [{ senderId: userId }, { receiverId: userId }],
-                status: 'accepted',
-            });
-            const connectionIds = connections.map(c =>
-                c.senderId.toString() === userId ? c.receiverId : c.senderId
-            );
-const user = await UserModel.findById(userId).select('username')
-            for (const connId of connectionIds) {
-                if (connId !== userId && !notified.has(cid) && connectionIds.includes(connId)) {
-                const notif = await sendNotification(
-                    userId,
-                    connId,
-                    `Your connection ${user.username} just posted a new post!`,
-                    'post',
-                );
-                io.to(connId.toString()).emit('newNotification', notif);
-            }}
+                status: 'accepted'
+            }).populate('senderId receiverId');
 
-            return res.status(201).json(newPost);
-        }catch (err) {
-            console.error(err);
-            return res.status(500).json({ message: 'Server error while creating post' });
+            // Process notifications
+            const notified = new Set();
+            for (const connection of connections) {
+                const connId = connection.senderId._id.equals(userId)
+                    ? connection.receiverId._id.toString()
+                    : connection.senderId._id.toString();
+
+                if (connId !== userId && !notified.has(connId)) {
+                    try {
+                        // Corrected notification call
+                        await SendNotification(
+                            userId, // senderId
+                            connId, // receiverId
+                            `${user.username} shared a new post`, // message
+                            'post' // type
+                        );
+                        io.to(connId).emit('newNotification', {
+                            message: `${user.username} shared a new post`,
+                            type: 'post'
+                        });
+                        notified.add(connId);
+                    } catch (notifError) {
+                        console.error('Failed to notify:', connId, notifError);
+                    }
+                }
+            }
+
+            return res.status(201).json({ success: true, Data: newPost });
+        } catch (err) {
+            console.error('Post creation error:', err);
+            return res.status(500).json({
+                message: 'Failed to create post',
+                error: process.env.NODE_ENV === 'development' ? err.message : null
+            });
         }
     }
+    static async getUserPost(req,res){
+        try{
+            const user = req.user._id.toString()
 
+            const result = await PostModel.find({userId:user})
+            .sort({ createdAt: -1 })
+            .lean()
+            .populate('userId')
+
+
+            if(!result){
+                res.status(404).json({message:'post not found'})
+            }
+            console.log(result)
+            res.status(200).json({Data:result})
+        }
+        catch(error){
+            return res.status(500).json({
+                message: 'Failed to create post',
+                error: process.env.NODE_ENV === 'development' ? err.message : null
+            });
+        }
+    }
     static async getAllPosts(req, res) {
         try {
             const { limit = 10, page = 1 } = req.query;
+            console.log(limit, page)
             const userId = req.user.user_id;
 
             const posts = await PostModel.find()
                 .sort({ createdAt: -1 })
                 .skip((page - 1) * Number(limit))
                 .limit(Number(limit))
-                .lean();
+                .lean()
+                .populate('userId','username')
 
             posts.forEach(post => {
                 post.userLiked = post.likes.includes(userId);
                 post.likeCount = post.likes.length;
                 post.commentCount = post.comments.length;
             });
-
-            return res.status(200).json({ data: posts });
+            console.log(posts)
+            return res.status(200).json({ Data: posts });
         } catch (err) {
             console.error(err);
             return res.status(500).json({ message: 'Server error fetching posts' });
@@ -108,7 +157,7 @@ const user = await UserModel.findById(userId).select('username')
                 { new: true, runValidators: true }
             );
 
-            return res.status(200).json({ message: 'Edit successful', data: updated });
+            return res.status(200).json({ message: 'Edit successful', Data: updated });
         } catch (err) {
             console.error(err);
             return res.status(500).json({ message: 'Server error while editing post' });
@@ -121,14 +170,13 @@ const user = await UserModel.findById(userId).select('username')
             if (!postId) {
                 return res.status(400).json({ message: 'Invalid data' });
             }
-            await PostModel.findByIdAndDelete(postId);
-            return res.status(200).json({ success: true, message: 'Post deleted successfully' });
+            const result = await PostModel.findByIdAndDelete(postId);
+            return res.status(200).json({ success: true, Data: result, message: 'Post deleted successfully' });
         } catch (err) {
             console.error(err);
             return res.status(500).json({ message: 'Server error while deleting post' });
         }
     }
-
     static async likePost(req, res) {
         try {
             const { postId } = req.params;
@@ -169,15 +217,14 @@ const user = await UserModel.findById(userId).select('username')
             return res.status(500).json({ message: 'Server error while liking post' });
         }
     }
-
     static async commentOnPost(req, res) {
         try {
             const { postId } = req.params;
             const userId = req.user.user_id;
-            const { text } = req.body;
+            const {comment } = req.body;
             const io = req.app.get('io');
 
-            if (!postId || !text) {
+            if (!postId || !comment) {
                 return res.status(400).json({ message: 'Invalid data' });
             }
 
@@ -186,8 +233,8 @@ const user = await UserModel.findById(userId).select('username')
                 return res.status(404).json({ message: 'Post not found' });
             }
 
-            const comment = await CommentModel.create({ postId, postType: 'GeneralPost', userId, text });
-            post.comments.push(comment._id);
+            const com = await CommentModel.create({ postId, postType: 'GeneralPost', userId, comment });
+            post.comments.push(com._id);
             await post.save();
 
             const commenter = await UserModel.findById(userId);
@@ -231,7 +278,5 @@ const user = await UserModel.findById(userId).select('username')
             console.error(err);
             return res.status(500).json({ message: 'Server error while commenting on post' });
         }
-    }
-}
-
-module.exports = PostController;
+    } }
+module.exports= Post
