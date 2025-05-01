@@ -12,6 +12,8 @@ import JobFeed from "../Components/Job-Feed/Job-Feed";
 import Job_Post from "../Components/Job_post/Job_post";
 import ProfilePage from "../Pages/ProfilePage/ProfilePage";
 import Profile from "../Components/Profile/Profile";
+import JobDetailsPage from "../Pages/job_details/job_details";
+import ConnectionsPage from "../Pages/connection/Connection";
 const router = createBrowserRouter(
     [{
         path: '/',
@@ -68,6 +70,14 @@ const router = createBrowserRouter(
                     },
 
                 ]
+            },
+            {
+                path:"connect",
+                element:<ConnectionsPage></ConnectionsPage>
+            },
+            {
+                path:'job/:id',
+                element:<JobDetailsPage></JobDetailsPage>
             }
             
         ]

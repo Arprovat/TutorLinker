@@ -2,14 +2,14 @@
 import { Link } from 'react-router-dom';
 import { BiSearch } from 'react-icons/bi';
 import { FaUserCircle } from 'react-icons/fa';
-
+import logo from '../../assets/EduConnect-logo.png'
 const MainNavbar = () => {
   return (
     <nav className="bg-white py-2  mb-3 shadow-md sticky top-0 z-10">
       <div className="container mx-auto flex items-center justify-between px-4 sm:px-6 ">
-        <Link to="/" className="flex items-center">
-          <img src='' alt="Logo" className="h-8 w-auto mr-2" />
-          <span className="font-bold text-xl">Your Brand</span>
+        <Link to="/main" className="flex items-center">
+          <img src={logo} alt="Logo" className="h-8 w-auto mr-2" />
+          <span className="font-bold text-xl text-primary dark:text-primary-dark">EduConnect</span>
         </Link>
 
        
