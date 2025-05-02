@@ -5,7 +5,7 @@ import Notification from '../Notification/Notification';
 const HomeScreen = () => {
   return (
     <div className="grid h-screen grid-cols-1 mx-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-      <div className="hidden md:block h-[calc(100vh-2rem)]"> {/* Fixed height */}
+      <div className="hidden md:block h-[calc(100vh-2rem)]"> 
         <Profile_sidebar />
       </div>
 

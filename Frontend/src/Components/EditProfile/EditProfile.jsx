@@ -36,7 +36,6 @@ const EditProfile = () => {
     );
     const dispatch = useDispatch()
     const handleAddInfo =(field,value)=>{
-        console.log(field,value)
     dispatch(setInfo({field,value}))
     }
 const handleSave=()=>{

@@ -8,7 +8,6 @@ const PostFeed = () => {
     const [OpenModal,setOpenModal]=useState(false)
     const [page,setPage] =useState(1)
     const {posts} =useSelector((state)=>state.post)
-    console.log("posts",posts)
     const dispatch = useDispatch()
     useEffect(()=>{
     dispatch(getAllPosts(page))
