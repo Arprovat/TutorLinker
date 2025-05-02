@@ -2,8 +2,6 @@ const Profile_model = require("../../Models/User_Profile/User_profile")
 
 const Update_profile=async(user_id,updateData) =>{
 try{
-    console.log(user_id)
-    console.log(Object.keys(updateData).length)
     if(!user_id && !Object.keys(updateData).length ===0){
         throw new error ("invalid Data")
     }
@@ -12,7 +10,6 @@ try{
         throw new error ("user not found")
     }
    
-console.log(existsUser)
     const result = await Profile_model.findOneAndUpdate(
         {AccId:user_id},
         {$set:updateData},
@@ -20,7 +17,6 @@ console.log(existsUser)
     ).populate('AccId')
     result.hasMinimumInfo();
     await result.save()
-console.log(result)
     return result;
 }
 catch(error){

@@ -1,28 +1,37 @@
-import { FaUser } from "react-icons/fa";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { getNotification } from "../../Redux/Notification";
+import { User } from "lucide-react";
 
 const Notification = () => {
+    const Dispatch = useDispatch()
+    const { notification } = useSelector((state) => state.Notification)
+    useEffect(() => {
+        Dispatch(getNotification())
+    }, [])
     return (
         <div className="text-black h-screen bg-white px-4">
             <h1 className="text-xl mb-3 font-semibold">Notification</h1>
+            <ul className="list  bg-white rounded-box shadow-md">
+                {
+                    notification.map(notify => (
+                        <li key={notify._id} className="list-row border-b border-gray-200">
+                            <div>
+                                {
+                                    notify.profile_photo?<img className="size-10 rounded-box" src="https://img.daisyui.com/images/profile/demo/1@94.webp" />:<User className="h-8 w-8 rounded-2xl"></User>
+                                }
+                            </div>
+                            <div>
+                                <p className="text-md line-clamp-2 overflow-hidden font-semibold opacity-80">{notify.message}</p>
+                            </div>
 
-            <div className="flex border-b-1 py-2 shadow-lg overflow-y-auto mb-1 border-gray-100 gap-2 items-center ">
-                <div>
-                    <FaUser src="" alt="" className="h-8 w-8 rounded-full" />
-                </div>
-                <div className=" ">
-                    <p className="text-md  text-clip">you just got a notification</p>
-                    <p className="text-sm text-gray-500">1 hours</p>
-                </div>
-            </div>
-            <div className="flex border-b-0 border-gray-100 gap-2 items-center ">
-                <div>
-                    <FaUser src="" alt="" className="h-8 w-8 rounded-full" />
-                </div>
-                <div className=" ">
-                    <p className="text-md text-clip  ">you just got a notification</p>
-                    <p className="text-sm text-gray-500">1 hours</p>
-                </div>
-            </div>
+                        </li>
+                    ))
+                }
+
+
+            </ul>
+
         </div>
     );
 };

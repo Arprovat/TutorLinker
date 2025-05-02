@@ -8,6 +8,7 @@ require('../Config/passport_jwt_config/passport_jwt_config.js');
 const Post = require("../Controller/post/Post.js");
 const jobPost = require('../Controller/job_post/job_post.js');
 const Connection = require('../Controller/Connection/Connection.js');
+const getAllNotification = require('../Controller/Notification/Notification.js');
 const router = express.Router();
 
 // Public route (no authentication required)
@@ -45,4 +46,5 @@ router.put('/accept/:id',Connection.acceptRequest)
 router.put('/reject/:id',Connection.rejectRequest)
 router.post('sendRequest/:id',Connection.sendRequest)
 
+router.get('/notification',getAllNotification)
 module.exports = router;

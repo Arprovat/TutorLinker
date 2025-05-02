@@ -1,4 +1,4 @@
-import { User } from "lucide-react";
+import { Code, MapPin, User } from "lucide-react";
 import { motion } from 'framer-motion';
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -6,9 +6,9 @@ import Education from "../Education/Education";
 
 
 const Profile_sidebar = () => {
-  const {username,address, education, Skill, loading, error } = useSelector((state) => state.profile);
+  const { username, address, education, skill, loading, error } = useSelector((state) => state.profile);
 
-  
+
 
   if (loading) {
     return <div className="text-black static h-screen px-4 z-10 bg-white"><p>Loading profile...</p></div>;
@@ -30,12 +30,15 @@ const Profile_sidebar = () => {
       </div>
       <div>
         <div className="space-y-4">
-          <p>{address || 'No location provided'}</p>
+          <div className="flex items-center justify-center md:justify-start text-gray-500 mt-1">
+            <MapPin className="h-4 w-4 mr-1" />
+            <span>{address}</span>
+          </div>
           <div>
             <h3 className="font-medium text-gray-500 mb-1">Education</h3>
             {education && education.length > 0 ? (
               education.map((edu) => (
-                <Education key={edu._id} edu={edu}/>
+                <Education key={edu._id} edu={edu} />
               ))
             ) : (
               <p>No education information provided.</p>
@@ -45,18 +48,21 @@ const Profile_sidebar = () => {
             whileTap={{ scale: 1.05 }}
             className="bg-zinc-100 text-black hover:bg-zinc-800 transition-bg duration-300 border-2 border-zinc-800 hover:text-white mx-auto w-full h-10 text-lg font-semibold rounded-lg "
           >
-           <Link to='EditProfile'>Edit profile</Link>
+            <Link to='EditProfile'>Edit profile</Link>
           </motion.button>
           <div>
             <h3 className="font-medium text-gray-500 mb-1">Skills</h3>
             <div className="flex flex-wrap gap-2">
-              {Skill && Skill.length > 0 ? ( 
-                Skill.map((s) => (
-                  <span key={s} className="bg-gray-100 px-2 py-1 rounded-full text-sm">{s}</span>
-                ))
-              ) : (
-                <p>No skills provided.</p>
-              )}
+
+              <Code className="h-5 w-5 text-gray-500 mt-1" />
+              <div className="flex flex-wrap gap-2">
+                {
+                  skill ? skill.map((s, inx) => (
+
+                    <span key={inx} className="bg-gray-100 px-2 py-1 rounded-full text-sm">{s}</span>
+                  )) : "not Provided yet"
+                }
+              </div>
             </div>
           </div>
         </div>
@@ -64,5 +70,4 @@ const Profile_sidebar = () => {
     </div>
   );
 };
-
 export default Profile_sidebar;

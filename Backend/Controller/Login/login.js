@@ -49,17 +49,14 @@ class Login {
   static sendResetPasswordEmail = async (req,res)=>{
     try {
       const {email} = req.body;
-      console.log(email);
       if(!email){
         return res.status(400).json({message:"Email is required"});
       }
       const user = await UsersAuthModel.findOne({email}).select("-password");
-      console.log(user);
       if(!user){
         return res.status(404).json({message:"User not found"});
       }
       const secret= user._id+ process.env.JWT_SECRET_KEY;
-      console.log(secret);
        const token = jwt.sign({user_id:user._id,user_email:user.email},secret,{expiresIn:"15m"});
       const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${user._id}/${token}`;
 

@@ -73,7 +73,6 @@ class Post {
 
             return res.status(201).json({ success: true, Data: newPost });
         } catch (err) {
-            console.error('Post creation error:', err);
             return res.status(500).json({
                 message: 'Failed to create post',
                 error: process.env.NODE_ENV === 'development' ? err.message : null
@@ -93,7 +92,6 @@ class Post {
             if(!result){
                 res.status(404).json({message:'post not found'})
             }
-            console.log(result)
             res.status(200).json({Data:result})
         }
         catch(error){
@@ -106,7 +104,6 @@ class Post {
     static async getAllPosts(req, res) {
         try {
             const { limit = 10, page = 1 } = req.query;
-            console.log(limit, page)
             const userId = req.user.user_id;
 
             const posts = await PostModel.find()
@@ -121,10 +118,8 @@ class Post {
                 post.likeCount = post.likes.length;
                 post.commentCount = post.comments.length;
             });
-            console.log(posts)
             return res.status(200).json({ Data: posts });
         } catch (err) {
-            console.error(err);
             return res.status(500).json({ message: 'Server error fetching posts' });
         }
     }
@@ -159,7 +154,6 @@ class Post {
 
             return res.status(200).json({ message: 'Edit successful', Data: updated });
         } catch (err) {
-            console.error(err);
             return res.status(500).json({ message: 'Server error while editing post' });
         }
     }
