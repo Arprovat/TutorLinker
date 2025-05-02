@@ -28,7 +28,6 @@ class profile {
         try {
             const user = req.user._id.toString()
             const updateData = req.body;
-            console.log("update",updateData)
             const updateProfile = await Update_profile(user, updateData)
             if (updateProfile) {
                 return res.status(200).json({

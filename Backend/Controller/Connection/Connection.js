@@ -45,7 +45,7 @@ module.exports= class Connection {
                     $lookup: {
                         from: 'Profile_model',
                         localField: 'otherUser._id',
-                        foreignField: 'accId',
+                        foreignField: 'AccId',
                         as: 'profile'
                     }
                 }, {
@@ -95,7 +95,7 @@ module.exports= class Connection {
                     $lookup: {
                         from: 'Profile_model',
                         localField: 'otherUser._id',
-                        foreignField: 'accId',
+                        foreignField: 'AccId',
                         as: 'profile'
                     }
                 }, {
