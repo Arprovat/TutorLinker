@@ -12,7 +12,7 @@ const BottomNavbar = () => {
                 </div>
                 
                 <div className=" cursor-pointer">
-                   <Link to='/connection' className="group flex gap-1 items-center"> <Users className="text-gray-600 group-hover:text-blue-500" size={20} />
+                   <Link to='connection' className="group flex gap-1 items-center"> <Users className="text-gray-600 group-hover:text-blue-500" size={20} />
                    <span className="text-xs mt-1 hidden sm:group-hover:block opacity-0 sm:group-hover:opacity-100 font-semibold transition-opacity duration-200">Friends</span></Link>
                 </div>
                 

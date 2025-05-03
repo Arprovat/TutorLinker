@@ -14,7 +14,7 @@ const Notification = () => {
             <h1 className="text-xl mb-3 font-semibold">Notification</h1>
             <ul className="list  bg-white rounded-box shadow-md">
                 {
-                    notification.map(notify => (
+                   notification? notification.map(notify => (
                         <li key={notify._id} className="list-row border-b border-gray-200">
                             <div>
                                 {
@@ -26,7 +26,7 @@ const Notification = () => {
                             </div>
 
                         </li>
-                    ))
+                    )):"you don't any notification yet"
                 }
 
 

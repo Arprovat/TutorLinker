@@ -113,7 +113,9 @@ const postsSlice = createSlice({
   name: "posts",
   initialState: {
     posts: [],
-    userPost:[],        
+    userPost:[],
+    SinglePost:{},
+    comment:[],
     status: "idle",  
     error: null
   },

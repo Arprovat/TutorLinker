@@ -3,11 +3,11 @@ const { Schema } = mongoose
 
 const educationSchema = new Schema({
     institute: { type: String, trim: true },
-    year: { type: String, match: /^\d{4}-\d{4}$/ }
+    year: { type: String }
 })
 const experienceSchema = new Schema({
     title: { type: String, trim: true },
-    year: { type: String, match: /^\d{4}-\d{4}$/ },
+    year: { type: String},
     about: { type: String, trim: true }
 
 
