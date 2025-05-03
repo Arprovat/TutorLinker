@@ -33,9 +33,10 @@ router.post('/like/:id', Post.likePost);
 router.post('/comment/:id', Post.commentOnPost);
 router.get('/userPost',Post.getUserPost)
 
-router.post('createJObPost',jobPost.createPost)
+router.post('/createJObPost',jobPost.createPost)
 router.get('/allJobPost',jobPost.AllPost)
-router.get('/getPost/:postId',jobPost.getPost)
+router.get('/getUserJobPost',jobPost.getUserAllPost)
+router.get('/getPost/:id',jobPost.getPost)
 router.get('/Applicant/:postId',jobPost.AllApplicant)
 router.post('/apply/:postId',jobPost.applyOnJob)
 

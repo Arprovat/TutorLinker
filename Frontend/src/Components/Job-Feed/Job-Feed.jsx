@@ -1,9 +1,52 @@
-import { useState } from "react";
+import { useEffect, useState} from "react";
 import { Link } from "react-router-dom";
 import Job_card from "../job_card/Job_card";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchAllJobPosts } from "../../Redux/JobSlice";
 
 const JobFeed = () => {
-    const [range,setRange]=useState(10)
+    const {posts} = useSelector((state)=>state.jobPost)
+    const dispatch = useDispatch()
+    const [page,setPage] =useState(1)
+    const [data,setData]=useState({
+        lat:0, lng:0, range:10
+    })
+    const handelRange= async(e)=>{
+            try { 
+                const position = await new Promise((resolve,reject)=>{
+                    navigator.geolocation.getCurrentPosition(resolve,reject,{
+                        enableHighAccuracy:true,
+                        timeout:10000,
+                        
+                    }) })
+                    setData(
+                        {lng:position.coords.longitude,
+                        lat:position.coords.latitude,
+                        range:e.target.value}
+                        
+                    )
+        }
+        catch(err){
+console.log(err)
+        }
+    }
+    useEffect(()=>{
+      dispatch(fetchAllJobPosts({page,data}))
+    },[dispatch,page,data])
+    useEffect(() => {
+        setPage(1); 
+      }, [data]);
+    const handleScroll = async () => {
+            if (window.innerHeight + document.documentElement.scrollTop + 1 >= document.documentElement.scrollHeight) {
+              setPage((prev) => prev + 1);
+            }
+          };
+        
+          useEffect(() => {
+            window.addEventListener('scroll', handleScroll);
+            return () => window.removeEventListener('scroll', handleScroll);
+          }, []);
+    
     return (
         <div className="bg-white p-6 rounded-xl shadow-md text-black mx-4 my-4">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
@@ -31,16 +74,17 @@ const JobFeed = () => {
                     </div>
                     <div className="collapse-content bg-white">
                         <div className="pt-4 pb-2 px-2">
-                            <label className="block text-sm font-medium text-gray-600 mb-2">
-                                Set radius (km): 
-                                <span className="ml-2 text-teal-700 font-semibold">{range}</span>
+                            <label className="flex justify-between text-sm font-medium text-gray-600 mb-2">
+                                <div>Set radius (km): 
+                                <span className="ml-2 text-teal-700 font-semibold">{data.range}</span></div>
+                                
                             </label>
                             <input 
                                 type="range" 
                                 min={0} 
                                 max={100} 
-                                defaultValue={range} 
-                                onChange={(e)=>setRange(e.target.value)}
+                                defaultValue={data.range} 
+                                onChange={(e)=>handelRange(e)}
                                 className="w-full range range-accent range-sm"
                             />
                             <div className="flex justify-between text-xs text-gray-500 mt-1">
@@ -52,9 +96,12 @@ const JobFeed = () => {
                 </div>
             </div>
 
-            {/* Add job list/content here */}
             <div className="mt-8  text-gray-500">
-<Job_card></Job_card>
+                {
+                    posts.map((post)=>(
+<Job_card key={post._id} post={post}></Job_card>
+                    ))
+                }
             </div>
         </div>
     );

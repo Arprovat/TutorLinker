@@ -51,7 +51,6 @@ const getAllNotification = async (req, res) => {
             }
         ]);
 
-        console.log("notify", notifications)
         if (notifications.length === 0) {
             return res.status(200).json({ message: "No notifications found", data: [] });
         }

@@ -104,7 +104,7 @@ class Post {
     static async getAllPosts(req, res) {
         try {
             const { limit = 10, page = 1 } = req.query;
-            const userId = req.user.user_id;
+            const userId = req.user._id;
 
             const posts = await PostModel.find()
                 .sort({ createdAt: -1 })

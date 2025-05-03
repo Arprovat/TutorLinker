@@ -2,10 +2,14 @@
 import { useState } from "react"
 import { Briefcase, Clock, DollarSign, GraduationCap, Calendar, LocateIcon } from "lucide-react"
 import { useNavigate } from "react-router-dom"
+import { useDispatch } from "react-redux";
+import { createJobPost } from "../../Redux/JobSlice";
+
 
 export default function Job_Post() {
     const [isSubmitting, setIsSubmitting] = useState(false)
     const Navigate = useNavigate()
+const dispatch = useDispatch()
     const [formData, setFormData] = useState({
         title: "",
         subject: "",
@@ -46,10 +50,13 @@ export default function Job_Post() {
                 }))
                 setIsSubmitting(true)
           console.log(formData)
-        setTimeout(() => {
+        
+        const response= await dispatch(createJobPost(formData))
+        console.log(response)
+          if(response.payload.success){
             setIsSubmitting(false)
             Navigate(-1)
-        }, 1500)
+          }
         } catch (error) {
             console.log(error)
         }
@@ -206,7 +213,7 @@ export default function Job_Post() {
                                 <button type="button" onClick={()=>Navigate(-1)} className="btn">
                                     Cancel
                                 </button>
-                                <button className="btn bg-blue-900 text-lg text-white rounded-xl font-semibold px-3 " type="submit" disabled={isSubmitting}>
+                                <button className="btn bg-blue-900 text-lg text-white rounded-xl font-semibold px-3 " type="submit">
                                     {isSubmitting ? "Publishing..." : "Publish Job Post"}
                                 </button>
                             </div>

@@ -4,21 +4,24 @@ import { PenLine, MapPin, Languages, Code, Plus } from "lucide-react"
 import PostCard from "../postCard/PostCard";
 import Job_card from "../job_card/Job_card";
 import { Link } from "react-router-dom";
-import Post from "../post/Post";
 import Education from "../Education/Education";
 import { useDispatch, useSelector } from "react-redux";
 import Experience from "../Experience/Experience";
 import { getUserPost } from "../../Redux/PostSlice";
+import Post from "../Post/Post";
+import { fetchUserJobPosts } from "../../Redux/JobSlice";
 
 export default function Profile() {
     const [activeTab, setActiveTab] = useState("posts")
     const [OpenModal, setOpenModal] = useState(false)
     const {userPost} = useSelector((state)=>state.post)
+    const {posts} =useSelector((state)=>state.jobPost)
     const {username,address,languages,experience, education, skill} = useSelector((state) => state.profile);
     const dispatch=useDispatch()
     console.log("user",userPost)
     useEffect(()=>{
         dispatch(getUserPost())
+        dispatch(fetchUserJobPosts())
     },[])
     
     return (
@@ -184,7 +187,11 @@ export default function Profile() {
                                     </div>
 
                                     <div className="space-y-4">
-                                        <Job_card></Job_card>
+                              {
+                                                  posts.map((post)=>(
+                              <Job_card key={post._id} post={post}></Job_card>
+                                                  ))
+                                              }     
                                     </div>
                                 </div>
                             )}

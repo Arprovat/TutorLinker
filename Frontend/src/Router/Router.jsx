@@ -47,7 +47,7 @@ const router = createBrowserRouter(
                         element: <PostFeed></PostFeed>
                     }, {
                         path: 'JobFeed',
-                        element: <PrivateRoute allowedUser={['teacher']}><JobFeed></JobFeed></PrivateRoute>
+                        element: <PrivateRoute allowedUser={['teacher','student']}><JobFeed></JobFeed></PrivateRoute>
                     }
                 ]
             },
