@@ -214,7 +214,7 @@ class Post {
     static async commentOnPost(req, res) {
         try {
             const { postId } = req.params;
-            const userId = req.user.user_id;
+            const userId = req.user._id;
             const {comment } = req.body;
             const io = req.app.get('io');
 
@@ -222,7 +222,7 @@ class Post {
                 return res.status(400).json({ message: 'Invalid data' });
             }
 
-            const post = await PostModel.findById(postId).populate('comments');
+            const post = await PostModel.findById(postId).populate('comments').populate('AccId','username');
             if (!post) {
                 return res.status(404).json({ message: 'Post not found' });
             }
@@ -267,7 +267,7 @@ class Post {
                 }
             }
 
-            return res.status(200).json({ data: post });
+            return res.status(200).json({ Data: post });
         } catch (err) {
             console.error(err);
             return res.status(500).json({ message: 'Server error while commenting on post' });

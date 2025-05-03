@@ -3,7 +3,15 @@ import { Link } from 'react-router-dom';
 import { BiSearch } from 'react-icons/bi';
 import { FaUserCircle } from 'react-icons/fa';
 import logo from '../../assets/EduConnect-logo.png'
+import { useDispatch } from 'react-redux';
+import { Logout } from '../../Redux/AuthSlice';
 const MainNavbar = () => {
+  const dispatch = useDispatch()
+  const handleLogout=()=>{
+ localStorage.removeItem('role')
+ localStorage.removeItem('refresh_token')
+dispatch(Logout())
+  }
   return (
     <nav className="bg-white py-2  mb-3 shadow-md sticky top-0 z-10">
       <div className="container mx-auto flex items-center justify-between px-4 sm:px-6 ">
@@ -28,9 +36,12 @@ const MainNavbar = () => {
           <div className="md:hidden">
            <Link to='/search'> <BiSearch className="h-6 w-6 text-gray-600 cursor-pointer" /></Link>
           </div>
+          <div className='flex gap-3 items-center'>
           <Link to="profile">
             <FaUserCircle className="h-8 w-8 text-gray-500" />
           </Link>
+          <Link to='/' onClick={handleLogout} className='btn btn-warning '>logout</Link>
+          </div>
           
         </div>
       </div>

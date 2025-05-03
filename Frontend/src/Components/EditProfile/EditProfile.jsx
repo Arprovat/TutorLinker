@@ -1,21 +1,32 @@
-
 import { useDispatch, useSelector } from "react-redux";
 import { Camera } from "lucide-react";
 import SetInfo from "../SetInfo/SetInfo";
-import { editProfile, setAddress, setdob, setInfo, setRelationShip, setReligious } from "../../Redux/Profileslice";
+import {
+    editProfile,
+    setAddress,
+    setdob,
+    setRelationShip,
+    setReligious,
+    removeEducation,
+    updateEducation,
+    removeExperience,
+    setInfo,
+} from "../../Redux/Profileslice";
 import PropTypes from "prop-types";
+import { useNavigate } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
 
 const FieldSet = ({ value, action, label }) => {
     const dispatch = useDispatch();
     return (
-        <div className="flex flex-col gap-2 w-full text-black">
-            <label className='text-sm font-semibold text-gray-600' htmlFor={label}>
+        <div className="flex flex-col bg-white text-black gap-2 w-full">
+            <label className="text-sm font-semibold text-gray-600" htmlFor={label}>
                 {label}
             </label>
             <input
                 type={label === 'Date Of Birth' ? 'date' : 'text'}
                 onChange={(e) => dispatch(action(e.target.value))}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-all"
+                className="input input-bordered bg-white text-black w-full focus:ring-2 focus:ring-blue-500"
                 placeholder={label === 'Date Of Birth' ? 'Select date' : 'Enter your information...'}
                 value={value}
                 id={label}
@@ -23,57 +34,75 @@ const FieldSet = ({ value, action, label }) => {
         </div>
     );
 };
-
 FieldSet.propTypes = {
     value: PropTypes.string,
-    action: PropTypes.func.isRequired,
-    label: PropTypes.string.isRequired
-};
-
-const EditProfile = () => {
-    const { profile_pic,cover_pic,username, address, relationship, religious, dob, experience, skill, education, languages } = useSelector(
-        (state) => state.profile
-    );
-    const dispatch = useDispatch()
-    const handleAddInfo =(field,value)=>{
-    dispatch(setInfo({field,value}))
-    }
-const handleSave=()=>{
-    const updateData ={
-        profile_pic:profile_pic?profile_pic:'',cover_pic:cover_pic?cover_pic:'', address, relationship, religious, dob, experience, skill, education, languages
-    }
-    dispatch(editProfile(updateData))
+    action: PropTypes.func,
+    label: PropTypes.string
 }
+const EditProfile = () => {
+    const {
+        profile_pic,
+        cover_pic,
+        username,
+        address,
+        relationship,
+        religious,
+        dob,
+        experience,
+        skill,
+        education,
+        languages,
+    } = useSelector((state) => state.profile);
+    const dispatch = useDispatch();
+    const navigate = useNavigate()
+    const handleSave = async() => {
+        const updateData = {
+            profile_pic: profile_pic || '',
+            cover_pic: cover_pic || '',
+            address,
+            relationship,
+            religious,
+            dob,
+            experience,
+            skill,
+            education,
+            languages,
+        };
+       const response= await dispatch(editProfile(updateData));
+        if(response.payload.success){
+            toast(response.payload.message)
+            navigate(-1)
+        }
+    };
+
     return (
-        <div className="min-h-screen bg-gray-100 py-8 px-4 sm:px-6 lg:px-8">
+        <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+            <ToastContainer></ToastContainer>
             <div className="max-w-5xl mx-auto bg-white rounded-2xl shadow-lg p-6">
-                <div className="mb-8">
-                    <h1 className="text-2xl font-bold text-gray-800">Edit Profile</h1>
+                <header className="mb-8">
+                    <h1 className="text-3xl font-bold text-gray-800">Edit Profile</h1>
                     <p className="text-gray-500 mt-2">Update your personal information</p>
-                </div>
+                </header>
 
-                <div className="mb-8 flex items-center gap-6">
+                <section className="mb-8 flex items-center gap-6 p-6 bg-gray-50 rounded-xl">
                     <div className="relative group">
-                        <img
-                            src=""
-                            alt="Profile"
-                            className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg"
-                        />
-                        <label className="absolute bottom-0 right-0 cursor-pointer bg-blue-500 p-2 rounded-full hover:bg-blue-600 transition-colors">
+                        <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+                            {profile_pic ? (
+                                <img src={profile_pic} alt="Profile" className="w-full h-full object-cover" />
+                            ) : (
+                                <span className="text-gray-400 text-2xl">👤</span>
+                            )}
+                        </div>
+                        <label className="absolute bottom-0 right-0 cursor-pointer bg-blue-500 p-2 rounded-full hover:bg-blue-600 transition-all shadow-lg">
                             <Camera className="text-white" size={20} />
-                            <input
-                                type="file"
-                                className="hidden"
-                                accept="image/*"
-
-                            />
+                            <input type="file" className="hidden" accept="image/*" />
                         </label>
                     </div>
                     <div>
                         <h2 className="text-xl font-semibold text-gray-800">{username}</h2>
-
+                        <p className="text-gray-500">Update your profile picture</p>
                     </div>
-                </div>
+                </section>
 
                 <div className="space-y-6">
                     <div className="grid gap-6 md:grid-cols-2">
@@ -81,37 +110,61 @@ const handleSave=()=>{
                         <FieldSet value={dob} label="Date Of Birth" action={setdob} />
                     </div>
 
-                    <div className="space-y-6">
-                        <SetInfo  onAdd={(value)=>handleAddInfo('education',value)} information={education} type="Education" />
-                        <SetInfo onAdd={(value)=>handleAddInfo("experience",value)} information={experience} type="Experience" />
-                        <SetInfo onAdd={(value)=>handleAddInfo('skill',value)} information={skill} type="Skill" />
-                        <SetInfo onAdd={(value)=>handleAddInfo('languages',value)} information={languages} type="Languages" />
+                    <div className="space-y-4">
+                        <SetInfo
+                            type="Education"
+                            information={education}
+                            onAdd={(item) => dispatch(setInfo({ field: 'education', item }))}
+                            onUpdate={(index, item) => dispatch(updateEducation({ index, item }))}
+                            onRemove={(index) => dispatch(removeEducation(index))}
+                        />
+                        <SetInfo
+                            type="Experience"
+                            information={experience}
+                            onAdd={(item) => dispatch(setInfo({ field: 'experience', item }))}
+                            onRemove={(index) => dispatch(removeExperience(index))}
+                        />
+                        <SetInfo
+                            type="Skill"
+                            information={skill}
+                            onAdd={(value) => dispatch(setInfo({ field: 'skill', value }))}
+                        />
+                        <SetInfo
+                            type="Languages"
+                            information={languages}
+                            onAdd={(value) => dispatch(setInfo({ field: 'languages', value }))}
+                        />
                     </div>
-                </div>
-                <div className="space-y-6">
-                    <div className="grid gap-6 md:grid-cols-2">
-                        <div className="flex flex-col text-black">
-                        <label className='text-sm font-semibold text-gray-600' >
-                relationship
-            </label>
-                            <select defaultValue={relationship} 
-                              onChange={(e) => dispatch(setRelationShip(e.target.value))}
 
-                            className="w-full h-16 p-3 border bg-white border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-all select">
+                    <div className="grid gap-6 md:grid-cols-2">
+                        <div className="form-control w-full">
+                            <label className="label">
+                                <span className="label-text text-black">Relationship Status</span>
+                            </label>
+                            <select
+                                value={relationship}
+                                onChange={(e) => dispatch(setRelationShip(e.target.value))}
+                                className="select text-black bg-white select-bordered w-full focus:ring-2 focus:ring-blue-500"
+                            >
                                 <option>Single</option>
                                 <option>Married</option>
                                 <option>Complicated</option>
                             </select>
                         </div>
-                        <FieldSet value={religious} label="religious" action={setReligious} />
-                    </div></div>
-                <div className="mt-8 border-t pt-6">
-                    <button className="w-full bg-blue-500 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-600 transition-colors" onClick={()=>handleSave()}>
+                        <FieldSet value={religious} label="Religious" action={setReligious} />
+                    </div>
+                </div>
+
+                <footer className="mt-8 border-t pt-6">
+                    <button
+                        onClick={handleSave}
+                        className="btn btn-primary w-full text-lg py-3 px-6 hover:bg-blue-600 transition-colors"
+                    >
                         Save Changes
                     </button>
-                </div>
+                </footer>
             </div>
-            </div>
+        </div>
     );
 };
 
