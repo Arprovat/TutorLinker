@@ -6,7 +6,7 @@ import Education from "../Education/Education";
 
 
 const Profile_sidebar = () => {
-  const { username, address, education, skill, loading, error } = useSelector((state) => state.profile.currentUser);
+  const { username,profile_pic, address, education, skill, loading, error } = useSelector((state) => state.profile.currentUser);
 
 
 
@@ -22,7 +22,10 @@ const Profile_sidebar = () => {
     <div className="text-black static h-screen px-4 z-10 bg-white">
       <div className="flex flex-col pt-6 items-center gap-4 pb-2">
         <div>
-          <User className="h-20 w-20 rounded-full" />
+          {
+            profile_pic? <img src={profile_pic} alt="" className="h-24 w-24 rounded-4xl object-cover" />:          <User className="h-20 w-20 rounded-full" />
+
+          }
         </div >
         <div>
           <h2 className="text-lg font-bold">{username}</h2>

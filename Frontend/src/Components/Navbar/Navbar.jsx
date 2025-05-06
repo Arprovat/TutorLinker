@@ -30,13 +30,13 @@ const Navbar = ({theme, setTheme}) => {
                 Home
               </Link>
               <Link
-                to="#features"
+                to="feature"
                 className={`px-3 py-2 rounded-md text-md font-medium hover:text-primary ${theme === "dark" ? "text-white " : "text-gray-600"}`}  
               >
                 Features
               </Link>
               <Link
-                to="#about"
+                to="about"
                 className={`px-3 py-2 rounded-md text-md font-medium hover:text-primary ${theme === "dark" ? "text-white " : "text-gray-600"}`}  
               >
                 About

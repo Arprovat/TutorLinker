@@ -38,7 +38,7 @@ const Notification = () => {
                       {notify.profile_photo ? (
                         <img
                           className="h-10 w-10 rounded-full"
-                          src="https://img.daisyui.com/images/profile/demo/1@94.webp" // Replace with actual profile photo URL if available
+                          src={notify.profile_photo}
                           alt="Profile"
                         />
                       ) : (

@@ -92,6 +92,9 @@ export const profileSlice = createSlice({
   name: 'profile',
   initialState,
   reducers: {
+    setProfile(state,action){
+      state.currentUser.profile_pic=action.payload
+    },
     setAddress(state, action) {
       state.currentUser.address = action.payload;
     },
@@ -220,6 +223,7 @@ export const {
   addExperience,
   updateExperience,
   removeExperience,
+  setProfile
 } = profileSlice.actions;
 
 export default profileSlice.reducer;

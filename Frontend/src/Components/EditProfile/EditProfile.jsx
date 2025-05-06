@@ -11,10 +11,12 @@ import {
     updateEducation,
     removeExperience,
     setInfo,
+    setProfile,
 } from "../../Redux/Profileslice";
 import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
+import UploadFile from "../../Helper/updateFile/UpdateFile";
 
 const FieldSet = ({ value, action, label }) => {
     const dispatch = useDispatch();
@@ -52,13 +54,13 @@ const EditProfile = () => {
         skill,
         education,
         languages,
-    } = useSelector((state) => state.profile);
+    } = useSelector((state) => state.profile.currentUser);
     const dispatch = useDispatch();
     const navigate = useNavigate()
-    const handleSave = async() => {
+    const handleSave = async () => {
         const updateData = {
-            profile_pic: profile_pic || '',
-            cover_pic: cover_pic || '',
+            profile_pic,
+            cover_pic,
             address,
             relationship,
             religious,
@@ -68,12 +70,27 @@ const EditProfile = () => {
             education,
             languages,
         };
-       const response= await dispatch(editProfile(updateData));
-        if(response.payload.success){
+        const response = await dispatch(editProfile(updateData));
+        if (response.payload.success) {
             toast(response.payload.message)
             navigate(-1)
         }
     };
+    const handleImage = async (e) => {
+        const file = e.target.files[0];
+        console.log(file)
+        if (!file) return;
+        try {
+            const result = await UploadFile(file);
+            console.log(result)
+            const url = result?.url 
+            dispatch(setProfile( url )); 
+            toast.success("Profile picture updated!");
+          } catch (error) {
+            console.error("Upload failed:", error);
+            toast.error("Failed to upload image");
+          }
+    }
 
     return (
         <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
@@ -88,15 +105,20 @@ const EditProfile = () => {
                     <div className="relative group">
                         <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
                             {profile_pic ? (
-                                <img src={profile_pic} alt="Profile" className="w-full h-full object-cover" />
+                                <img src={profile_pic} alt="Profile" className="w-full h-full rounded-full object-cover" />
                             ) : (
                                 <span className="text-gray-400 text-2xl">👤</span>
                             )}
                         </div>
-                        <label className="absolute bottom-0 right-0 cursor-pointer bg-blue-500 p-2 rounded-full hover:bg-blue-600 transition-all shadow-lg">
+                        <label htmlFor="profile" className="absolute bottom-0 right-0 cursor-pointer bg-blue-500 p-2 rounded-full hover:bg-blue-600 transition-all shadow-lg">
                             <Camera className="text-white" size={20} />
-                            <input type="file" className="hidden" accept="image/*" />
-                        </label>
+                            <input
+                                type="file"
+                                id="profile"
+                                onChange={handleImage}
+                                className="hidden"
+                                onClick={(e) => (e.target.value = null)}
+                            />                        </label>
                     </div>
                     <div>
                         <h2 className="text-xl font-semibold text-gray-800">{username}</h2>

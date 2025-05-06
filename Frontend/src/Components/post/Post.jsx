@@ -9,7 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 
 const Post = ({ isOpen, isClose }) => {
-  const { username } = useSelector((state) => state.profile.currentUser);
+  const { username,profile_pic } = useSelector((state) => state.profile.currentUser);
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const [formData, setFormData] = useState({
@@ -78,7 +78,9 @@ const Post = ({ isOpen, isClose }) => {
         </button>
         <h1 className="text-2xl font-bold mb-4">Create Post</h1>
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 bg-gray-200 rounded-full" />
+          <div className="w-10 h-10 bg-gray-200 rounded-full">
+            <img src={profile_pic} alt="profile_pic" className="w-10 h-10 rounded-full object-cover" />
+          </div>
           <span className="font-semibold">{username}</span>
         </div>
 
