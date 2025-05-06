@@ -3,6 +3,7 @@ const { sendNotification } = require('../../Helper/SendNotification/SendNoticati
 const CommentModel = require('../../Models/Comment/Comment_model');
 const Connection = require('../../Models/Connected/Connected');
 const PostModel = require('../../Models/Post/Post_Model');
+const Profile_model = require('../../Models/User_Profile/User_profile');
 const UserModel = require('../../Models/Users_auth/Users_auth_model');
 
 class Post {
@@ -112,7 +113,7 @@ class Post {
                 .limit(Number(limit))
                 .lean()
                 .populate('userId','username')
-
+                
             posts.forEach(post => {
                 post.userLiked = post.likes.includes(userId);
                 post.likeCount = post.likes.length;
