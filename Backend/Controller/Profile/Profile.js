@@ -76,7 +76,22 @@ class profile {
     }
 
 
+  static async getAProfile(req,res){
+    try {
+        const userId= req.params.id
+        if(!userId){
+            return res.status(400).json({success:false,message:"invalid data"})
+        }
+        const profileData = await Profile_model.findOne({AccId:userId}).populate('AccId','username')
+        if (!profileData) {
+            return res.status(404).json({ message: "profile data not found" })
+        }
+        return res.status(200).json({ message: "profile found" , success: true, Data: profileData })
+    } catch (error) {
+        return res.status(500).json({ message: "Internal server error" });
 
+    }
+  }
     static  async deleteAccount  (req, res)  {
         try {
             const { password } = req.body;
@@ -101,39 +116,38 @@ class profile {
     }
 
 
-    static async SearchUser  (req, res)  {
-try {
-    const q = req.query
-        const regex = new RegExp('^' + q, 'i');
-       const pipeline =[
-        {
-            $lookup:{
-                from:'User',
-                localField:'AccId',
-                foreignField:'_id',
-                as:'user'
-            }
-        },
-        { $unwind: '$user' }, 
-        { $match: { 'user.username': { $regex: regex } } },
-        {
-            $project: {
-              _id: 0,
-              username: '$user.username',
-              photoUrl: '$profile_pic'
-            }
-          },
-         
-          { $limit: 10 }
-       ]
-
-       const result = await User_profile.aggregate(pipeline)
-       res.status(200).json({  Data: result });
-     
-} catch (error) {
-    return res.status(500).json({ message: "Internal server error" });
-
-}
-    }      
+    static async SearchUser(req, res) {
+        try {
+          const q = req.query.searchQuery;
+          const regex = new RegExp('^' + q, 'i');
+          const pipeline = [
+            {
+              $lookup: {
+                from: 'users', 
+                localField: 'AccId',
+                foreignField: '_id',
+                as: 'user'
+              }
+            },
+            { $unwind: '$user' },
+            { $match: { 'user.username': { $regex: regex } } },
+            {
+              $project: {
+                _id: 0,
+                username: '$user.username',
+                photoUrl: '$profile_pic' 
+              }
+            },
+            { $limit: 10 }
+          ];
+      
+          const result = await Profile_model.aggregate(pipeline);
+          console.log(result)
+          res.status(200).json({ Data: result }); 
+        } catch (error) {
+          console.error(error); 
+          return res.status(500).json({ message: "Internal server error" });
+        }
+      }     
 }
 module.exports = profile

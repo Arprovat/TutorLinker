@@ -40,17 +40,16 @@ export const fetchAllJobPosts = createAsyncThunk(
 );
 export const fetchUserJobPosts = createAsyncThunk(
   'jobPost/fetchUserJobPosts',
-  async ({page, data},thunkAPI) => {
+  async (userId,thunkAPI) => {
       try {
         const response = await axios.get(
-          `http://localhost:8000/protect/getUserJobPost`,
+          `http://localhost:8000/protect/getUserJobPost/${userId}`,
           { 
             withCredentials: true,
             
           }
         );
-        console.log(data)
-      return {data:response.data,page};
+      return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response?.data || error.message);
     }
@@ -98,8 +97,9 @@ const jobPostSlice = createSlice({
   name: 'jobPost',
   initialState: {
     posts: [],
-    selectedPost: null,
+    selectedPost: {},
     applicants: [],
+    UserJobpost:[],
     loading: false,
     error: null,
     successMessage: null
@@ -154,32 +154,25 @@ const jobPostSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchUserJobPosts.fulfilled, (state, action) => {
-        state.loading = false;
-        const { data} = action.payload;
-        
-          state.posts = data.Data;
-        
-        
+        state.loading = false;    
+        state.UserJobpost =action.payload.Data;
+      console.log(state.UserJobpost)
+      })
       
-      })
-      .addCase(fetchUserJobPosts.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      })
       .addCase(fetchJobPostById.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(fetchJobPostById.fulfilled, (state, action) => {
         state.loading = false;
-        state.selectedPost = action.payload.data;
+        state.selectedPost = action.payload.Data;
+        console.log("seletedpost",state.selectedPost)
       })
       .addCase(fetchJobPostById.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
 
-      // Fetch Applicants
       .addCase(fetchApplicantsByPost.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -193,7 +186,6 @@ const jobPostSlice = createSlice({
         state.error = action.payload;
       })
 
-      // Apply to Job
       .addCase(applyToJob.pending, (state) => {
         state.loading = true;
         state.error = null;

@@ -23,19 +23,21 @@ router.get('/profile', profile.getProfile);
 router.post("/EditProfile", profile.editProfile);
 router.post("/ChangePassword", profile.changePassword);
 router.post("/DeleteAccount", profile.deleteAccount);
-router.get('/search',profile.SearchUser)
+router.get('/getAProfile/:id',profile.getAProfile)
+router.get('/search/:searchQuery',profile.SearchUser)
 
 router.get('/post', Post.getAllPosts);
 router.post('/CreatePost', Post.createPost);
 router.put('/edit/:id', Post.editPost);
 router.delete('/post/delete/:id', Post.deletePost);
 router.post('/like/:id', Post.likePost);
+router.get('/getAPost/:id',Post.getAPost)
 router.post('/comment/:id', Post.commentOnPost);
-router.get('/userPost',Post.getUserPost)
+router.get('/userPost/:id',Post.getUserPost)
 
 router.post('/createJObPost',jobPost.createPost)
 router.get('/allJobPost',jobPost.AllPost)
-router.get('/getUserJobPost',jobPost.getUserAllPost)
+router.get('/getUserJobPost/:id',jobPost.getUserAllPost)
 router.get('/getPost/:id',jobPost.getPost)
 router.get('/Applicant/:postId',jobPost.AllApplicant)
 router.post('/apply/:postId',jobPost.applyOnJob)

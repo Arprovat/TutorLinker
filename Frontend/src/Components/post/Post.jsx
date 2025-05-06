@@ -6,9 +6,10 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { createPost } from "../../Redux/PostSlice";
 import { useNavigate } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
 
 const Post = ({ isOpen, isClose }) => {
-  const { username } = useSelector((state) => state.profile);
+  const { username } = useSelector((state) => state.profile.currentUser);
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const [formData, setFormData] = useState({
@@ -16,18 +17,19 @@ const Post = ({ isOpen, isClose }) => {
     photoUrl: [],
     videoUrl: []
   });
- const handlePost=()=>{
-    const response =dispatch(createPost(formData))
-   if(response.payload.success){
-navigate(-1)
-setFormData({
-    content: "",
-    photoUrl: [],
-    videoUrl: []
-})
-   }
+  const handlePost =async () => {
+    const response = await dispatch(createPost(formData))
+    if(response.payload.success) {
+      navigate(-1)
+      toast('post uploaded successfully ')
+      setFormData({
+        content: "",
+        photoUrl: [],
+        videoUrl: []
+      })
+    }
 
- }
+  }
   const handleInput = (e) => {
     setFormData((prev) => ({ ...prev, content: e.target.value }));
   };
@@ -66,6 +68,7 @@ setFormData({
       id="post_modal"
       className={`modal modal-bottom sm:modal-middle ${isOpen ? "modal-open" : ""}`}
     >
+      <ToastContainer></ToastContainer>
       <div className="modal-box relative bg-white p-6 rounded-2xl shadow-lg">
         <button
           onClick={isClose}
@@ -135,10 +138,9 @@ setFormData({
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           disabled={!canPost}
-          onClick={()=>handlePost()}
-          className={`w-full py-3 text-white font-semibold rounded-2xl ${
-            canPost ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-300 cursor-not-allowed'
-          }`}
+          onClick={() => handlePost()}
+          className={`w-full py-3 text-white font-semibold rounded-2xl ${canPost ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-300 cursor-not-allowed'
+            }`}
         >
           Post
         </motion.button>

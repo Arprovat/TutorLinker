@@ -26,7 +26,6 @@ export const getAllPosts = createAsyncThunk(
         `http://localhost:8000/protect/post?limit=10&page=${page}`,
         { withCredentials: true }
       );
-      console.log(response.data,page)
       return {data:response.data,page};
     } catch (err) {
       return rejectWithValue(err.response?.data || err.message);
@@ -70,7 +69,7 @@ export const LikePost = createAsyncThunk(
     async (postId, { rejectWithValue }) => {
       try {
       const response =  await axios.post(
-          `http://localhost:8000/protect/like/${postId}`,
+          `http://localhost:8000/protect/like/${postId}`,{},
           { withCredentials: true }
         );
         return response.data
@@ -82,22 +81,37 @@ export const LikePost = createAsyncThunk(
 
   export const commentPost = createAsyncThunk(
     "commentPost",
-    async (postId,comment ,{ rejectWithValue }) => {
+    async ({ postId, comment },{ rejectWithValue }) => {
       try {
-        await axios.post(
-          `http://localhost:8000/protect/post/delete/${postId}`,comment,
+        console.log(postId,comment)
+        const response=await axios.post(
+          `http://localhost:8000/protect/comment/${postId}`,{comment},
           { withCredentials: true }
         );
-        return postId;
+        return response.data;
+      } catch (err) {
+        return rejectWithValue(err.response?.data || err.message);
+      }
+    }
+  );
+  export const getAPost = createAsyncThunk(
+    "getAPost",
+    async (postId ,{ rejectWithValue }) => {
+      try {
+        const response=await axios.get(
+          `http://localhost:8000/protect/getAPost/${postId}`,
+          { withCredentials: true }
+        );
+        return response.data;
       } catch (err) {
         return rejectWithValue(err.response?.data || err.message);
       }
     }
   );
 
-  export const getUserPost = createAsyncThunk('getUserPost',async(_,{ rejectWithValue })=>{
+  export const getUserPost = createAsyncThunk('getUserPost',async(userId,{ rejectWithValue })=>{
     try {
-        const response = await axios.get('http://localhost:8000/protect/userPost',{
+        const response = await axios.get(`http://localhost:8000/protect/userPost/${userId}`,{
             withCredentials:true
         })
         console.log(response.data)
@@ -114,18 +128,37 @@ const postsSlice = createSlice({
   initialState: {
     posts: [],
     userPost:[],
-    SinglePost:{},
-    comment:[],
+    singlePost:{},
     status: "idle",  
-    error: null
+    error: null,
+    loading:false
   },
   reducers: {
-    likePost(state, action) {
-      const post = state.items.find(p => p._id === action.payload.postId);
-      if (post) {
-        post.likes += 1;
+    AddLike(state, action) {
+      const { postId, userId } = action.payload;
+      
+      const postInList = state.posts.find(p => p._id === postId);
+      if (postInList) {
+        if(postInList.likes.includes(userId)) {
+          postInList.likeCount -= 1;
+          postInList.likes = postInList.likes.filter(id => id !== userId);
+        } else {
+          postInList.likeCount += 1;
+          postInList.likes.push(userId);
+        }
+      
+  
+      if(state.singlePost._id === postId) {
+        if(state.singlePost.likes.includes(userId)) {
+          state.singlePost.likeCount -= 1;
+          state.singlePost.likes = state.singlePost.likes.filter(id => id !== userId);
+        } else {
+          state.singlePost.likeCount += 1;
+          state.singlePost.likes.push(userId);
+        }
       }
-    },
+    }},
+  
     addComment(state, action) {
       const { postId, comment } = action.payload;
       const post = state.items.find(p => p._id === postId);
@@ -181,8 +214,40 @@ const postsSlice = createSlice({
       .addCase(getUserPost.rejected,(state,action)=>{
         state.error=action.payload.message
       })
+      .addCase(commentPost.fulfilled,(state,action)=>{
+        console.log("comment",action.payload.Data)
+        state.singlePost=action.payload.Data
+      })
+      .addCase(commentPost.rejected,(state,action)=>{
+        console.log('hit')
+        state.loading=false
+        state.error=action.payload.message
+      })
+      .addCase(getAPost.fulfilled,(state,action)=>{
+        console.log(action.payload.Data)
+        state.loading=false
+        state.singlePost=action.payload.Data
+        console.log("oo",state.singlePost)
+      })
+      .addCase(getAPost.pending,(state)=>{
+        state.loading=true
+      })
+      .addCase(getAPost.rejected,(state)=>{
+        state.loading=true
+      })
+      .addCase(LikePost.fulfilled,(state,)=>{
+        
+        state.loading=false
+        
+      })
+      .addCase(LikePost.pending,(state)=>{
+        state.loading=true
+      })
+      .addCase(LikePost.rejected,(state)=>{
+        state.loading=true
+      })
   }
 });
 
-export const { likePost, addComment } = postsSlice.actions;
+export const { AddLike, addComment } = postsSlice.actions;
 export default postsSlice.reducer;
