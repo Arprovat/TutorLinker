@@ -10,6 +10,7 @@ import { SearchUser } from '../../Redux/Profileslice';
 const MainNavbar = () => {
   const dispatch = useDispatch();
   const userId = localStorage.getItem('userId');
+  const {profile_pic} = useSelector(state=>state.profile.currentUser)
   const [searchQuery, setSearchQuery] = useState('');
   const {searchUser} = useSelector(state=>state.profile)
   const navigate  = useNavigate()
@@ -81,7 +82,9 @@ const MainNavbar = () => {
 
         <div className="flex gap-3 items-center">
           <Link to={`profile/${userId}`}>
-            <FaUserCircle className="h-8 w-8 text-gray-500" />
+            {profile_pic?
+           <img src={profile_pic} alt="" className='h-8 w-8 rounded-full object-cover'/>
+            :<FaUserCircle className="h-8 w-8 text-gray-500" />}
           </Link>
           <button onClick={handleLogout} className="btn btn-warning">
             Logout

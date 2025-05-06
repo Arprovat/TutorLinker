@@ -45,9 +45,9 @@ const PostCard = ({ post, username }) => {
             <div className="flex items-center pb-2 justify-between">
                 <div className="flex items-center gap-3">
                     <div>
-                        {post?.userId?.profilePicture ? (
+                        {post?.photoUrl ? (
                             <img
-                                src={post.userId.profilePicture}
+                                src={post.photoUrl}
                                 alt="Profile"
                                 className="h-12 w-12 rounded-full object-cover"
                             />

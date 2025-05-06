@@ -14,6 +14,8 @@ import ProfilePage from "../Pages/ProfilePage/ProfilePage";
 import Profile from "../Components/Profile/Profile";
 import JobDetailsPage from "../Pages/job_details/job_details";
 import ConnectionsPage from "../Pages/connection/Connection";
+import FeaturesPage from "../Pages/Feature/Feature";
+import AboutPage from "../Pages/About/About";
 const router = createBrowserRouter(
     [{
         path: '/',
@@ -30,6 +32,12 @@ const router = createBrowserRouter(
             {
                 path: 'signup',
                 element: <Signup />
+            },{
+                path:'feature',
+                element:<FeaturesPage></FeaturesPage>
+            },{
+                path:'about',
+                element:<AboutPage></AboutPage>
             }
         ]
 
