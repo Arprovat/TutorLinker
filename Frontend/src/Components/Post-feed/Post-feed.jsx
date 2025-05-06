@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import PostCard from './../postCard/PostCard';
 import { motion } from 'framer-motion';
-import Post from '../post/Post';
+import Post from '../Post/Post'
 import { useDispatch, useSelector } from 'react-redux';
 import { getAllPosts } from '../../Redux/PostSlice';
 const PostFeed = () => {
@@ -9,6 +9,7 @@ const PostFeed = () => {
     const [page,setPage] =useState(1)
     const {posts} =useSelector((state)=>state.post)
     const dispatch = useDispatch()
+    console.log("post",posts)
     useEffect(()=>{
     dispatch(getAllPosts(page))
     },[dispatch,page])
@@ -41,7 +42,7 @@ const PostFeed = () => {
 <motion.button whileTap={{scale:1.1}}  type='button' className='bg-black flex font-semibold items-center justify-center text-white shadow-2xl h-10 w-20 rounded-2xl'>post</motion.button>
                 </div>
                 </div>
-                <Post isOpen={OpenModal} isClose={()=>{setOpenModal(false)}} ></Post>
+                <Post isOpen={OpenModal} isClose={()=>setOpenModal(!OpenModal)} ></Post>
             </div>
             {
                 posts?posts.map((post)=>(

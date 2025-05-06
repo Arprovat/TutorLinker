@@ -1,48 +1,91 @@
-
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { BiSearch } from 'react-icons/bi';
 import { FaUserCircle } from 'react-icons/fa';
-import logo from '../../assets/EduConnect-logo.png'
-import { useDispatch } from 'react-redux';
+import logo from '../../assets/EduConnect-logo.png';
+import { useDispatch, useSelector } from 'react-redux';
 import { Logout } from '../../Redux/AuthSlice';
+import { useState, useEffect} from 'react';
+import { SearchUser } from '../../Redux/Profileslice';
+
 const MainNavbar = () => {
-  const dispatch = useDispatch()
-  const handleLogout=()=>{
- localStorage.removeItem('role')
- localStorage.removeItem('refresh_token')
-dispatch(Logout())
-  }
+  const dispatch = useDispatch();
+  const userId = localStorage.getItem('userId');
+  const [searchQuery, setSearchQuery] = useState('');
+  const {searchUser} = useSelector(state=>state.profile)
+  const navigate  = useNavigate()
+  useEffect(() => {
+    const debounceTimer = setTimeout(() => {
+      if (searchQuery.trim()) {
+      dispatch(SearchUser(searchQuery));
+      } 
+    }, 300);
+
+    return () => clearTimeout(debounceTimer);
+  }, [dispatch, searchQuery]);
+
+
+  const handleLogout = () => {
+    localStorage.removeItem('role');
+    localStorage.removeItem('refresh_token');
+    localStorage.removeItem('userId');
+    dispatch(Logout());
+    navigate('/')
+  };
+
+  const SearchDropdown = () => (
+    <div className="absolute top-full left-0 right-0 bg-white shadow-lg mt-2 rounded-lg z-50 max-h-60 overflow-y-auto">
+        
+      
+      { searchUser.map((user) => (
+        <Link
+          key={user.id}
+          to={`profile/${user.id}`}
+          className="flex items-center p-2 hover:bg-gray-100"
+          onClick={() => setSearchQuery('')}
+        >
+          {user.profilePic ? (
+            <img src={user.profilePic} alt={user.username} className="w-8 h-8 rounded-full mr-2" />
+          ) : (
+            <FaUserCircle className="w-8 h-8 text-gray-500 mr-2" />
+          )}
+          <span className="text-gray-700">{user.username}</span>
+        </Link>
+      ))}
+    </div>
+  );
+
   return (
-    <nav className="bg-white py-2  mb-3 shadow-md sticky top-0 z-10">
-      <div className="container mx-auto flex items-center justify-between px-4 sm:px-6 ">
+    <nav className="bg-white py-2 mb-3 shadow-md sticky top-0 z-50">
+      <div className="container mx-auto flex items-center justify-between px-4 sm:px-2">
         <Link to="/main" className="flex items-center">
           <img src={logo} alt="Logo" className="h-8 w-auto mr-2" />
-          <span className="font-bold text-xl text-primary dark:text-primary-dark">EduConnect</span>
+          <span className="font-bold text-xl text-primary">EduConnect</span>
         </Link>
 
-       
-        <div className=" md: hidden md:flex items-center bg-white rounded-full shadow-sm border border-gray-300 focus-within:border-indigo-500">
-          <BiSearch className="h-5 w-5 text-gray-400 ml-3" />
-          <input
-            type="text"
-            placeholder="Search..."
-            className="py-2 text-black pl-2 pr-4 w-64 rounded-full focus:outline-none border-none  text-sm"
-          />
+        <div className="hidden md:flex items-center relative" >
+          <div className="bg-white rounded-full shadow-sm border border-gray-300 focus-within:border-indigo-500 relative">
+            <BiSearch className="h-5 w-5 text-gray-400 ml-3 absolute top-3 left-0" />
+            <input
+              type="text"
+              placeholder="Search users..."
+              className="py-2 pl-8 pr-4 w-64 text-black rounded-full focus:outline-none border-none text-sm"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            {searchQuery && <SearchDropdown />}
+          </div>
         </div>
 
        
-        <div className="flex items-center space-x-4">
-         
-          <div className="md:hidden">
-           <Link to='/search'> <BiSearch className="h-6 w-6 text-gray-600 cursor-pointer" /></Link>
-          </div>
-          <div className='flex gap-3 items-center'>
-          <Link to="profile">
+        
+
+        <div className="flex gap-3 items-center">
+          <Link to={`profile/${userId}`}>
             <FaUserCircle className="h-8 w-8 text-gray-500" />
           </Link>
-          <Link to='/' onClick={handleLogout} className='btn btn-warning '>logout</Link>
-          </div>
-          
+          <button onClick={handleLogout} className="btn btn-warning">
+            Logout
+          </button>
         </div>
       </div>
     </nav>

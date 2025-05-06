@@ -9,7 +9,7 @@ const JobFeed = () => {
     const dispatch = useDispatch()
     const [page,setPage] =useState(1)
     const [data,setData]=useState({
-        lat:0, lng:0, range:10
+        lat:0, lng:0, range:0
     })
     const handelRange= async(e)=>{
             try { 

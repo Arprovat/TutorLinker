@@ -6,7 +6,7 @@ import Education from "../Education/Education";
 
 
 const Profile_sidebar = () => {
-  const { username, address, education, skill, loading, error } = useSelector((state) => state.profile);
+  const { username, address, education, skill, loading, error } = useSelector((state) => state.profile.currentUser);
 
 
 

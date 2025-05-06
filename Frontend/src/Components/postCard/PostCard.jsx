@@ -1,22 +1,26 @@
 import { FaEyeSlash, FaUserCircle } from 'react-icons/fa';
 import { BookmarkIcon, EllipsisVertical, Heart, MessageCircle, Share } from 'lucide-react';
 import { motion } from 'framer-motion'
-import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import moment from 'moment'
+import { useState } from 'react';
+import { useDispatch, } from 'react-redux';
+import { AddLike, getAPost, LikePost } from '../../Redux/PostSlice';
+import Comment from '../Comment/Comment';
+import { Link } from 'react-router-dom';
 const PostCard = ({ post, username }) => {
-    console.log("post", post)
+    console.log(post.userId.username)
+    const [openModal, setOpenModal] = useState(false)
+    const dispatch = useDispatch()
+    const userId = localStorage.getItem("userId")
     const time = () => {
-        console.log(post.createdAt)
         const start = moment(post.createdAt)
         const now = moment()
 
         const duration = moment.duration(start.diff(now))
-        console.log(duration)
         const asMin = Math.abs(duration.asMinutes())
         const asHours = Math.abs(duration.asHours())
         const asDay = Math.abs(duration.asDays())
-        console.log(asHours)
         if (asHours < 1) {
             return `${Math.round(asMin)} min`
         }
@@ -27,52 +31,73 @@ const PostCard = ({ post, username }) => {
             return `${asDay.toFixed(0)} day${asDay !== 1 ? 's' : ''}`;
         }
     }
+    const handelComment = () => {
+        dispatch(getAPost(post._id))
+        setOpenModal(!openModal)
+    }
+    console.log(userId)
+    const handleLike = () => {
+        dispatch(LikePost(post._id))
+        dispatch(AddLike({ postId: post._id, userId }))
+    }
     return (
-        <div className="w-full px-4 py-2  bg-white text-black">
-            <div className="flex items-center pb-2  justify-between">
-                <div className="flex items-center gap-3  justify-between">
-                    <div><FaUserCircle className='h-12 w-12 rounded-full'></FaUserCircle> </div>
+        <div className="w-full px-4 py-2 bg-white text-black">
+            <div className="flex items-center pb-2 justify-between">
+                <div className="flex items-center gap-3">
                     <div>
-                        <h2 className='font-semibold text-md'>{post.userId.username ? post.userId.username : username}</h2>
+                        {post?.userId?.profilePicture ? (
+                            <img
+                                src={post.userId.profilePicture}
+                                alt="Profile"
+                                className="h-12 w-12 rounded-full object-cover"
+                            />
+                        ) : (
+                            <FaUserCircle className='h-12 w-12 rounded-full text-gray-400' />
+                        )}
+                    </div>
+                    <div>
+                        <Link to={`profile/${post.userId._id}`}><h2 className='font-semibold text-md'>
+                            {post?.userId?.username || username}
+                        </h2></Link>
                         <p className='text-sm text-gray-500'>{time()} ago</p>
                     </div>
                 </div>
                 <div>
-                <div className="dropdown dropdown-end">
-  <div 
-    tabIndex={0} 
-    role="button" 
-    className="btn btn-ghost btn-circle p-2 hover:bg-gray-100 transition-colors"
-  >
-    <EllipsisVertical className="w-5 h-5 text-gray-600" />
-  </div>
-  
-  <ul 
-    tabIndex={0} 
-    className="dropdown-content z-20 menu p-2 shadow-lg bg-white rounded-lg w-48 
+                    <div className="dropdown dropdown-end">
+                        <div
+                            tabIndex={0}
+                            role="button"
+                            className="btn btn-ghost btn-circle p-2 hover:bg-gray-100 transition-colors"
+                        >
+                            <EllipsisVertical className="w-5 h-5 text-gray-600" />
+                        </div>
+
+                        <ul
+                            tabIndex={0}
+                            className="dropdown-content z-20 menu p-2 shadow-lg bg-white rounded-lg w-48 
              border border-gray-100 transform origin-top-right transition-all duration-200"
-  >
-    <li>
-      <button className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 
+                        >
+                            <li>
+                                <button className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 
                         active:bg-gray-100 rounded-md transition-colors">
-        <BookmarkIcon className="w-4 h-4 text-gray-500" />
-        Save post
-      </button>
-    </li>
-    
-    <li className="my-1">
-      <div className="h-px bg-gray-100 mx-2" />
-    </li>
-    
-    <li>
-      <button className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 
+                                    <BookmarkIcon className="w-4 h-4 text-gray-500" />
+                                    Save post
+                                </button>
+                            </li>
+
+                            <li className="my-1">
+                                <div className="h-px bg-gray-100 mx-2" />
+                            </li>
+
+                            <li>
+                                <button className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 
                         active:bg-gray-100 rounded-md transition-colors">
-        <FaEyeSlash className="w-4 h-4 text-gray-500" />
-        Hide post
-      </button>
-    </li>
-  </ul>
-</div>
+                                    <FaEyeSlash className="w-4 h-4 text-gray-500" />
+                                    Hide post
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
             <div>
@@ -85,9 +110,16 @@ const PostCard = ({ post, username }) => {
                 </div>
                 <div className='flex py-3 item-center justify-between'>
                     <div className='flex  items-center gap-12'>
-                        <motion.button whileTap={{ scale: 1.3 }} className='flex gap-2 hover:cursor-pointer'><Heart className='fill-red-600' />
-                            <span>{post.likeCount}</span></motion.button>
-                        <motion.button whileTap={{ scale: 1.3 }} className=''><Link to='/postid/comment'><MessageCircle></MessageCircle></Link></motion.button>
+                        <motion.button whileTap={{ scale: 1.3 }} onClick={handleLike} className='flex gap-2 hover:cursor-pointer'>
+                            <Heart className={post.likes.includes(userId) ? 'fill-red-600' : ''} />
+                            <span>{post.likeCount}</span>
+                        </motion.button>
+                        <motion.button whileTap={{ scale: 1.3 }} className='' onClick={() => (
+                            handelComment()
+                        )}><MessageCircle></MessageCircle></motion.button>
+                        {
+                            openModal && <Comment isClose={() => { handelComment() }} isOpen={openModal} ></Comment>
+                        }
                     </div>
                     <div className='mr-1'><Share className='cursor-pointer' /></div>
                 </div>

@@ -83,6 +83,8 @@ class jobPost {
                     .limit(limit)
                     .lean()
                     .populate('userId', 'username')
+                    .populate({path:'applicationId', populate:{path:'applicantId'}})
+
                 console.log("location", posts)
                 return res.status(200).json({ message: "post", Data: posts })
             }
@@ -92,6 +94,8 @@ class jobPost {
                 .limit(limit)
                 .lean()
                 .populate('userId', 'username')
+                .populate({path:'applicationId', populate:{path:'applicantId'}})
+
 
             return res.status(200).json({ Data: posts })
         } catch (error) {
@@ -101,7 +105,7 @@ class jobPost {
     }
     static async getUserAllPost(req, res) {
         try {
-            const userId = req.user._id
+            const userId = req.params.id
             
             if (!userId) {
                 return res.status(400).json({ message: 'user Id not found ' })
@@ -110,11 +114,12 @@ class jobPost {
             if (!existUser) {
                 return res.status(404).json({ message: "user not found", error: true })
             }
-            
-            posts = await jobPost_Model.findById({userId:userId})
+            console.log("exist")
+           const posts = await jobPost_Model.find({userId:userId})
                 .sort({ createdAt: -1 })
                 .lean()
                 .populate('userId', 'username')
+                .populate({path:'applicationId', populate:{path:'applicantId'}})
 
             return res.status(200).json({ Data: posts })
         } catch (error) {
@@ -128,8 +133,7 @@ class jobPost {
         if (!postId) {
             return res.status(400)
         }
-
-        const post = await jobPost_Model.findById(postId)
+        const post = await jobPost_Model.findById(postId).populate('userId').populate('applicationId')
 
         return res.status(200).json({ Data: post })
     }
@@ -146,29 +150,30 @@ class jobPost {
     }
     static async applyOnJob(req, res) {
         try {
-            const { postId } = req.params;
+            const postId  = req.params.postId
             const user_id = req.user._id
-            const { resumeUrl } = req.body
+            const resumeUrl  = req.body.applicantData
             const io = req.app.get('io')
 
 
             if (!postId && !user_id) {
-                return res.status(400).json({ message: 'invalid request' })
+                return res.status(400).json({success:false, message: 'invalid request' })
             }
             const existUser = await Users_auth_model.findById(user_id)
-            if (!existUser && !existUser.role === 'teacher') {
-                return res.status(404).json({ message: 'you are not able to apply ' })
+            console.log(existUser)
+            if (existUser.role != 'teacher') {
+                return res.status(404).json({success:false, message: 'you are not able to apply ' })
             }
-
+            console.log(postId)
             const existPost = await jobPost_Model.findById(postId)
             if (!existPost) {
-                return res.status(404).json({ message: 'post not found' })
+                return res.status(404).json({success:false, message: 'post not found' })
             }
             const deadline = moment(existPost.deadline, DD - MM - YYYY)
             const currentDate = moment()
 
             if (deadline.isAfter(currentDate)) {
-                return res.status(201).json({ message: 'deadline is over' })
+                return res.status(201).json({success:false, message: 'deadline is over' })
             }
             const application = await job_Application_model.create({
                 jobPostId: postId,
@@ -187,11 +192,11 @@ class jobPost {
 
             )
             io.to(existPost.userId.toString()).emit('newNotification', notify)
-            return res.status(200).json({ message: "Apply successful", Data: application })
+            return res.status(200).json({ success:true,message: "Apply successful", Data: application })
 
 
         } catch (error) {
-            return res.status(500).json({ message: 'Server error while creating post' });
+            return res.status(500).json({success:false, message: 'Server error while creating post' });
 
         }
     }

@@ -39,7 +39,21 @@ export const deleteAccount = createAsyncThunk(
     return response.data;
   }
 );
-
+export const getAProfile =  createAsyncThunk('getAProfile',async(userId,{rejectWithValue})=>{
+try {
+  const response = await axios.get(`http://localhost:8000/protect/getAProfile/${userId}`,
+    { withCredentials: true })
+return response.data
+} catch (error) {
+  return rejectWithValue(error)
+}
+})
+export const SearchUser = createAsyncThunk('SearchUser',async(searchQuery)=>{
+const response = await axios.get(`http://localhost:8000/protect/search/${searchQuery}`,{
+  withCredentials:true
+})
+return response.data
+})
 export const changePassword = createAsyncThunk(
   'profile/changePassword',
   async (passwords) => {
@@ -53,6 +67,7 @@ export const changePassword = createAsyncThunk(
 );
 
 const initialState = {
+ currentUser:{ AccId:'',
   username: '',
   profile_pic: '',
   cover_pic: '',
@@ -66,7 +81,9 @@ const initialState = {
   contact: { phone: '', Email: '' },
   relationship: '',
   religious: '',
-  isComplete: false,
+  isComplete: false,},
+  otherProfile:{},
+  searchUser:[],
   loading: false,
   error: null,
 };
@@ -76,35 +93,34 @@ export const profileSlice = createSlice({
   initialState,
   reducers: {
     setAddress(state, action) {
-      state.address = action.payload;
+      state.currentUser.address = action.payload;
     },
     setdob(state, action) {
-      state.dob = action.payload;
+      state.currentUser.dob = action.payload;
     },
     setReligious(state, action) {
-      state.religious = action.payload;
+      state.currentUser.religious = action.payload;
     },
     setRelationShip(state, action) {
-      state.relationship = action.payload;
+      state.currentUser.relationship = action.payload;
     },
     setInfo(state, action) {
       const { field, value } = action.payload;
-      if (Array.isArray(state[field])) {
+      if (Array.isArray(state.currentUser[field])) {
         state[field].push(value);
       }
     },
-    // Structured array operations
     
     removeEducation(state, action) {
-      state.education.splice(action.payload, 1);
+      state.currentUser.education.splice(action.payload, 1);
     },
    
     updateExperience(state, action) {
       const { index, item } = action.payload;
-      if (state.experience[index]) state.experience[index] = item;
+      if (state.currentUser.experience[index]) state.currentUser.experience[index] = item;
     },
     removeExperience(state, action) {
-      state.experience.splice(action.payload, 1);
+      state.currentUser.experience.splice(action.payload, 1);
     },
   },
   extraReducers: (builder) => {
@@ -117,26 +133,26 @@ export const profileSlice = createSlice({
       .addCase(getProfile.fulfilled, (state, action) => {
         state.loading = false;
         const data = action.payload.Data;
-        state.username = data.AccId.username;
-        state.profile_pic = data.profile_pic;
-        state.cover_pic = data.cover_pic;
-        state.address = data.address;
-        state.skill = data.skill;
-        state.education = data.education;
-        state.experience = data.experience;
-        state.gender = data.gender;
-        state.languages = data.languages;
-        state.dob = data.dob;
-        state.contact = data.contact;
-        state.relationship = data.relationship;
-        state.religious = data.religious;
-        state.isComplete = data.isComplete;
+        state.currentUser.AccId = data.AccId
+        state.currentUser.username = data.AccId.username;
+        state.currentUser.profile_pic = data.profile_pic;
+        state.currentUser.cover_pic = data.cover_pic;
+        state.currentUser.address = data.address;
+        state.currentUser.skill = data.skill;
+        state.currentUser.education = data.education;
+        state.currentUser.experience = data.experience;
+        state.currentUser.gender = data.gender;
+        state.currentUser.languages = data.languages;
+        state.currentUser.dob = data.dob;
+        state.currentUser.contact = data.contact;
+        state.currentUser.relationship = data.relationship;
+        state.currentUser.religious = data.religious;
+        state.currentUser.isComplete = data.isComplete;
       })
       .addCase(getProfile.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       })
-      // editProfile
       .addCase(editProfile.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -144,19 +160,21 @@ export const profileSlice = createSlice({
       .addCase(editProfile.fulfilled, (state, action) => {
         state.loading = false;
         const data = action.payload.Data;
-        state.profile_pic = data.profile_pic;
-        state.cover_pic = data.cover_pic;
-        state.address = data.address;
-        state.skill = data.skill;
-        state.education = data.education;
-        state.experience = data.experience;
-        state.gender = data.gender;
-        state.languages = data.languages;
-        state.dob = data.dob;
-        state.contact = data.contact;
-        state.relationship = data.relationship;
-        state.religious = data.religious;
-        state.isComplete = data.isComplete;
+        state.currentUser.AccId = data.AccId
+        state.currentUser.username = data.AccId.username;
+        state.currentUser.profile_pic = data.profile_pic;
+        state.currentUser.cover_pic = data.cover_pic;
+        state.currentUser.address = data.address;
+        state.currentUser.skill = data.skill;
+        state.currentUser.education = data.education;
+        state.currentUser.experience = data.experience;
+        state.currentUser.gender = data.gender;
+        state.currentUser.languages = data.languages;
+        state.currentUser.dob = data.dob;
+        state.currentUser.contact = data.contact;
+        state.currentUser.relationship = data.relationship;
+        state.currentUser.religious = data.religious;
+        state.currentUser.isComplete = data.isComplete;
       })
       .addCase(editProfile.rejected, (state, action) => {
         state.loading = false;
@@ -166,7 +184,24 @@ export const profileSlice = createSlice({
       .addCase(deleteAccount.fulfilled, () => {
         return initialState;
       })
-      
+      .addCase(getAProfile.fulfilled, (state,action) => {
+        state.loading = false;
+
+        state.otherProfile = action.payload.Data
+        console.log(state.Profile)
+      })
+      .addCase(getAProfile.rejected,(state)=>{
+        state.loading =true
+      })
+      .addCase(SearchUser.fulfilled, (state,action) => {
+        state.loading = false;
+
+        state.searchUser = action.payload.Data
+        
+      })
+      .addCase(SearchUser.rejected,(state)=>{
+        state.loading =true
+      })
       .addCase(changePassword.fulfilled, (state) => {
         state.loading = false;
       });

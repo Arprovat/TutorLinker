@@ -15,7 +15,7 @@ export const Logout = createAsyncThunk(
     }
 );
 const initialState = {
-    userId: null,
+    userId: '',
     username: '',
     role: '',
     isAuth: false,
@@ -32,12 +32,13 @@ export const authSlice = createSlice({
     reducers: {
         login: (state, action) => {
             state.userId = action.payload._id,
-                state.username = action.payload.username
+            state.username = action.payload.username
             state.role = action.payload.role
             state.isAuth = true
         },
         setSocket: (state, action) => {
             state.socket = action.payload
+            console.log(state.socket)
         },
         setOnlineUser: (state, action) => {
             state.onlineUser = action.payload

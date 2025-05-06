@@ -55,9 +55,8 @@ const router = createBrowserRouter(
                 path: 'EditProfile',
                 element: <PrivateRoute allowedUser={['student', 'parent', 'teacher']}><EditProfile></EditProfile></PrivateRoute>
             },
-
             {
-                path: 'profile',
+                path: 'profile/:id',
                 element: <ProfilePage></ProfilePage>,
                 children: [
                     {

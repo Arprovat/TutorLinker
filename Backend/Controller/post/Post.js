@@ -17,21 +17,18 @@ class Post {
                 return res.status(400).json({ message: 'Post must contain content, photos, or videos' });
             }
 
-            // Create post
             const newPost = await PostModel.create({
                 content: content?.trim(),
                 photoUrl: Array.isArray(photoUrl) ? photoUrl : [photoUrl],
                 videoUrl: Array.isArray(videoUrl) ? videoUrl : [videoUrl],
                 userId,
-            });
-
-            // Get user data for notifications
+            })
+            const Post = await PostModel.findById(newPost._id).populate('userId','username')
             const user = await UserModel.findById(userId).select('username').lean();
             if (!user) {
                 return res.status(404).json({ message: 'User not found' });
             }
 
-            // Corrected notification call
             await SendNotification(
                 userId, // senderId
                 userId, // receiverId
@@ -44,7 +41,6 @@ class Post {
                 status: 'accepted'
             }).populate('senderId receiverId');
 
-            // Process notifications
             const notified = new Set();
             for (const connection of connections) {
                 const connId = connection.senderId._id.equals(userId)
@@ -71,7 +67,7 @@ class Post {
                 }
             }
 
-            return res.status(201).json({ success: true, Data: newPost });
+            return res.status(201).json({ success: true, Data:Post  });
         } catch (err) {
             return res.status(500).json({
                 message: 'Failed to create post',
@@ -81,13 +77,17 @@ class Post {
     }
     static async getUserPost(req,res){
         try{
-            const user = req.user._id.toString()
+            const user = req.params.id
 
             const result = await PostModel.find({userId:user})
             .sort({ createdAt: -1 })
             .lean()
             .populate('userId')
-
+            result.forEach(post => {
+                post.userLiked = post.likes.includes(user);
+                post.likeCount = post.likes.length;
+                post.commentCount = post.comments.length;
+            });
 
             if(!result){
                 res.status(404).json({message:'post not found'})
@@ -118,12 +118,34 @@ class Post {
                 post.likeCount = post.likes.length;
                 post.commentCount = post.comments.length;
             });
+            console.log(posts)
             return res.status(200).json({ Data: posts });
         } catch (err) {
             return res.status(500).json({ message: 'Server error fetching posts' });
         }
     }
+    static async getAPost(req, res) {
+        try {
+            const  postId  = req.params.id;
+            console.log(postId)
+            const userId = req.user._id;
+            
 
+            if (!postId ) {
+                return res.status(400).json({ message: 'Invalid data' });
+            }
+
+            const post = await PostModel.findById(postId).populate({path:'comments' ,populate:{path:'userId',select:'username'}}).populate('userId','username');
+            if (!post) {
+                return res.status(404).json({ message: 'Post not found' });
+            }
+            console.log(post)
+            return res.status(200).json({ Data: post });
+        } catch (err) {
+            console.error(err);
+            return res.status(500).json({ message: 'Server error while commenting on post' });
+        }
+    } 
     static async editPost(req, res) {
         try {
             const { postId } = req.params;
@@ -173,8 +195,8 @@ class Post {
     }
     static async likePost(req, res) {
         try {
-            const { postId } = req.params;
-            const userId = req.user.user_id;
+            const  postId  = req.params.id;
+            const userId = req.user._id;
             const io = req.app.get('io');
 
             if (!postId) {
@@ -191,10 +213,9 @@ class Post {
                 post.likes.pull(userId);
             } else {
                 post.likes.push(userId);
-                // Notify post author if not liking own post
                 if (post.userId.toString() !== userId) {
                     const user = await UserModel.findById(userId);
-                    const notif = await sendNotification(
+                    const notif = await SendNotification(
                         userId,
                         post.userId.toString(),
                         `${user.username} liked your post`,
@@ -213,36 +234,36 @@ class Post {
     }
     static async commentOnPost(req, res) {
         try {
-            const { postId } = req.params;
+            const  postId  = req.params.id;
             const userId = req.user._id;
-            const {comment } = req.body;
+            const text = req.body.comment;
             const io = req.app.get('io');
 
-            if (!postId || !comment) {
+            if (!postId || !text) {
                 return res.status(400).json({ message: 'Invalid data' });
             }
 
-            const post = await PostModel.findById(postId).populate('comments').populate('AccId','username');
+            let post = await PostModel.findById(postId).populate({path:'comments' ,populate:{path:'userId',select:'username'}}).populate('userId','username');
             if (!post) {
                 return res.status(404).json({ message: 'Post not found' });
             }
 
-            const com = await CommentModel.create({ postId, postType: 'GeneralPost', userId, comment });
+            const com = await CommentModel.create({ postId, postType: 'GeneralPost', userId, text });
             post.comments.push(com._id);
             await post.save();
-
+            console.log(post,"comment")
             const commenter = await UserModel.findById(userId);
             const notified = new Set();
-
-            if (post.userId.toString() !== userId) {
-                const notifAuthor = await sendNotification(
+            console.log(post.userId._id.toString())
+            if (post.userId._id.toString() !== userId) {
+                const notifAuthor = await SendNotification(
                     userId,
-                    post.userId.toString(),
+                    post.userId._id.toString(),
                     `${commenter.username} commented on your post`,
                     'post'
                 );
-                io.to(post.userId.toString()).emit('newNotification', notifAuthor);
-                notified.add(post.userId.toString());
+                io.to(post.userId._id.toString()).emit('newNotification', notifAuthor);
+                notified.add(post.userId._id.toString());
             }
 
             const commenterIds = await CommentModel.find({ postId }).distinct('userId');
@@ -257,7 +278,7 @@ class Post {
             for (const cid of commenterIds) {
                 if (cid !== userId && !notified.has(cid) && connIds.includes(cid)) {
                     const userToNotify = await UserModel.findById(cid);
-                    const notif = await sendNotification(
+                    const notif = await SendNotification(
                         userId,
                         cid,
                         `${commenter.username} also commented on a post you commented on`,
@@ -266,7 +287,12 @@ class Post {
                     io.to(cid).emit('newNotification', notif);
                 }
             }
-
+            post = await PostModel.findById(postId)
+            .populate({
+                path: 'comments',
+                populate: { path: 'userId', select: 'username' }
+            })
+            .populate('userId', 'username');
             return res.status(200).json({ Data: post });
         } catch (err) {
             console.error(err);

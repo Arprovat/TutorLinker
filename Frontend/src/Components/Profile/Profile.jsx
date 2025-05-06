@@ -1,32 +1,31 @@
 
-import { useEffect, useState } from "react"
-import { PenLine, MapPin, Languages, Code, Plus } from "lucide-react"
+import {  useState } from "react"
+import { PenLine, MapPin, Languages, Code, Plus, Mail } from "lucide-react"
 import PostCard from "../postCard/PostCard";
 import Job_card from "../job_card/Job_card";
-import { Link } from "react-router-dom";
+import {motion} from 'framer-motion'
+import { Link, useParams } from "react-router-dom";
 import Education from "../Education/Education";
-import { useDispatch, useSelector } from "react-redux";
+import {  useSelector } from "react-redux";
 import Experience from "../Experience/Experience";
-import { getUserPost } from "../../Redux/PostSlice";
 import Post from "../Post/Post";
-import { fetchUserJobPosts } from "../../Redux/JobSlice";
 
 export default function Profile() {
+    const userId=localStorage.getItem("userId")
+    const param= useParams()
     const [activeTab, setActiveTab] = useState("posts")
     const [OpenModal, setOpenModal] = useState(false)
     const {userPost} = useSelector((state)=>state.post)
-    const {posts} =useSelector((state)=>state.jobPost)
-    const {username,address,languages,experience, education, skill} = useSelector((state) => state.profile);
-    const dispatch=useDispatch()
-    console.log("user",userPost)
-    useEffect(()=>{
-        dispatch(getUserPost())
-        dispatch(fetchUserJobPosts())
-    },[])
+    const {UserJobpost} =useSelector((state)=>state.jobPost)
     
+    const {otherProfile,currentUser} =useSelector(state=>state.profile)
+    console.log("user",userPost)
+    console.log('profile',otherProfile)
+  
+    const displayUser = userId == param.id ?currentUser:otherProfile
     return (
-        <div className="flex flex-col min-h-screen bg-gray-50">
-            <div className="relative w-full h-48 md:h-64 bg-gray-200">
+        <div className="flex flex-col min-h-screen bg-gray-100">
+            <div className="relative w-full h-48 md:h-64 bg-gray-300">
                 <img src="/placeholder.svg?height=300&width=1200" alt="Cover" className="w-full h-full object-cover" />
                 <label htmlFor="editCover" className="absolute cursor-pointer w-30 p-2 h-8 flex justify-center items-center bottom-4 font-semibold rounded-2xl text-black right-4 bg-white/80">
                     <PenLine className="h-4 w-4 mr-2" />
@@ -50,15 +49,15 @@ export default function Profile() {
                                 />
 
                                 <div className="absolute inset-0 flex items-center justify-center rounded-full bg-gray-100 text-4xl font-bold text-gray-600 dark:bg-gray-800 dark:text-gray-300">
-                                    JD
+                                    <img src="#" alt="" />
                                 </div>
                             </div>
 
                             <div className="mt-4 text-center md:text-left">
-                                <h1 className="text-2xl font-bold text-black">{username}</h1>
+                                <h1 className="text-2xl font-bold text-black">{displayUser.username}</h1>
                                 <div className="flex items-center justify-center md:justify-start text-gray-500 mt-1">
                                     <MapPin className="h-4 w-4 mr-1" />
-                                    <span>{address}</span>
+                                    <span>{displayUser.address}</span>
                                 </div>
                             </div>
 
@@ -66,8 +65,7 @@ export default function Profile() {
                                 <div>
                                     <h1 className="text-2xl font-semibold">Education</h1>
                                 </div>
-                                {
-                                    education?education.map(edu=>(
+                                { displayUser.education?displayUser.education.map(edu=>(
                                     <Education key={edu._id} edu={edu}></Education>
                                     )):"not provided yet"
                                 }
@@ -78,7 +76,7 @@ export default function Profile() {
                                     <h1 className="text-2xl font-semibold">Experience</h1>
                                 </div>
                                 {
-                                    experience?experience.map(ex=>(
+                                   displayUser.experience?displayUser.experience.map(ex=>(
                                         <Experience key={ex._id} experience={ex}></Experience>
                                     )):"Not provided yet"
                                 }
@@ -95,7 +93,7 @@ export default function Profile() {
                                         <Languages className="h-5 w-5 text-gray-500 mt-1" />
                                         <div className="flex flex-wrap gap-2">
                                          {
-                                            languages?languages.map((lan,inx)=>(
+                   displayUser.languages?displayUser.languages.map((lan,inx)=>(
 
                                                 <span key={inx} className="bg-gray-100 px-2 py-1 rounded-full text-sm">{lan}</span>
                                             )):"not provided"
@@ -114,7 +112,7 @@ export default function Profile() {
                                         <Code className="h-5 w-5 text-gray-500 mt-1" />
                                         <div className="flex flex-wrap gap-2">
                                           {
-                                            skill?skill.map((s,inx)=>(
+                                           displayUser.skill?displayUser.skill.map((s,inx)=>(
 
                                                 <span key={inx} className="bg-gray-100 px-2 py-1 rounded-full text-sm">{s}</span>
                                             )):"not Provided yet"
@@ -124,7 +122,22 @@ export default function Profile() {
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                                
+                            </div> 
+                           { userId == param.id?( <motion.button
+            whileTap={{ scale: 1.05 }}
+            className="bg-zinc-100 text-black hover:bg-zinc-800 transition-bg duration-300 border-2 border-zinc-800 hover:text-white mx-auto w-full h-10 text-lg font-semibold rounded-lg "
+          >
+            <Link to='/main/EditProfile'>Edit profile</Link>
+          </motion.button>):( <motion.button
+            whileTap={{ scale: 1.05 }}
+            className="bg-zinc-100  flex gap-3 items-baseline justify-center text-black hover:bg-zinc-800 transition-bg duration-300 border-2 border-zinc-800 hover:text-white mx-auto w-full h-10 text-lg font-semibold rounded-lg "
+          >
+            <div className="flex gap-3 items-center my-auto justify-center"><Mail className="text-center"></Mail>
+            <Link to='/mail'>Mail</Link></div>
+          </motion.button>)
+
+                           }
                         </div>
                     </div>
 
@@ -168,7 +181,7 @@ export default function Profile() {
                                       {
                                         userPost?userPost.map(post=>(
                                             
-                                            <PostCard key={post._id} post={post} username={username}></PostCard>
+                                            <PostCard key={post._id} post={post} username={displayUser.username}></PostCard>
                                         )):'not provided yet'
                                       }
 
@@ -188,7 +201,7 @@ export default function Profile() {
 
                                     <div className="space-y-4">
                               {
-                                                  posts.map((post)=>(
+                                                  UserJobpost.map((post)=>(
                               <Job_card key={post._id} post={post}></Job_card>
                                                   ))
                                               }     
