@@ -136,7 +136,15 @@ class Post {
                 return res.status(400).json({ message: 'Invalid data' });
             }
 
-            const post = await PostModel.findById(postId).populate({path:'comments' ,populate:{path:'userId',select:'username'}}).populate('userId','username');
+            const post = await PostModel.findById(postId)
+            .populate({
+              path: 'comments',
+              populate: {
+                path: 'userId',
+                select: 'username'
+              }
+            })
+            .populate('userId', 'username');
             if (!post) {
                 return res.status(404).json({ message: 'Post not found' });
             }

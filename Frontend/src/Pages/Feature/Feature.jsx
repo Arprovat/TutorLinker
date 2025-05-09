@@ -1,6 +1,6 @@
 import { BookOpen, Users, BriefcaseIcon, Bell, FileText, UserCircle, CheckCircle } from "lucide-react"
 import { Link } from "react-router-dom"
-
+import main from '../../assets/main.png'
 
 export default function FeaturesPage() {
   return (
@@ -21,9 +21,9 @@ export default function FeaturesPage() {
         </div>
       </section>
 
-      <section className="w-full  text-black py-12 md:py-24 lg:py-32">
-        <div className="container mx-auto px-4 md:px-6">
-          <div className="grid gap-6 lg:grid-cols-3 lg:gap-12">
+      <section className="w-full  text-black py-8 md:py-24 lg:py-32">
+        <div className="container mx-auto px-8 md:px-8">
+          <div className="grid gap-4 lg:grid-cols-3 lg:gap-12">
             <div className="space-y-4">
               <div className="inline-flex items-center justify-center rounded-lg bg-blue-100 p-2 shadow-sm">
                 <Users className="h-6 w-6 text-blue-600" />
@@ -150,7 +150,7 @@ export default function FeaturesPage() {
           </div>
           <div className="mx-auto grid max-w-5xl items-center gap-6 py-12 lg:grid-cols-2 lg:gap-12">
             <img
-              src="/placeholder.svg?height=400&width=600"
+              src={main}
               width={600}
               height={400}
               alt="EduConnect Platform Screenshot"

@@ -19,7 +19,7 @@ const MainNavbar = () => {
       if (searchQuery.trim()) {
       dispatch(SearchUser(searchQuery));
       } 
-    }, 300);
+    }, 3000);
 
     return () => clearTimeout(debounceTimer);
   }, [dispatch, searchQuery]);
@@ -40,12 +40,12 @@ const MainNavbar = () => {
       { searchUser.map((user) => (
         <Link
           key={user.id}
-          to={`profile/${user.id}`}
+          to={`profile/${user._id}`}
           className="flex items-center p-2 hover:bg-gray-100"
           onClick={() => setSearchQuery('')}
         >
-          {user.profilePic ? (
-            <img src={user.profilePic} alt={user.username} className="w-8 h-8 rounded-full mr-2" />
+          {user.photoUrl ? (
+            <img src={user.photoUrl} alt={user.username} className="w-8 h-8 rounded-full mr-2" />
           ) : (
             <FaUserCircle className="w-8 h-8 text-gray-500 mr-2" />
           )}

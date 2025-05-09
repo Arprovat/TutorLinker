@@ -16,6 +16,7 @@ import JobDetailsPage from "../Pages/job_details/job_details";
 import ConnectionsPage from "../Pages/connection/Connection";
 import FeaturesPage from "../Pages/Feature/Feature";
 import AboutPage from "../Pages/About/About";
+import Map from "../Pages/Map/Map";
 const router = createBrowserRouter(
     [{
         path: '/',
@@ -85,6 +86,10 @@ const router = createBrowserRouter(
             {
                 path:'job/:id',
                 element:<JobDetailsPage></JobDetailsPage>
+            },
+            {
+                path:'map',
+                element:<Map></Map>
             }
             
         ]

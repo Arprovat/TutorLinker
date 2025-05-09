@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const commentSchema = new mongoose.Schema({
   postId: { type: mongoose.Schema.Types.ObjectId, required: true, refPath: 'postType' },
-  postType: { type: String, enum: ['GeneralPost', 'JobPost'], required: true },
+  postType: { type: String, enum: ['Post', 'JobPost'], required: true },
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   text: { type: String, required: true },
 },{timestamps:true});

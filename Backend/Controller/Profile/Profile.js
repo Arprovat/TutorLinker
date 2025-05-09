@@ -1,4 +1,5 @@
 const Update_profile = require("../../Helper/update_profile/Update_profile");
+const Connected = require("../../Models/Connected/Connected");
 const Profile_model = require("../../Models/User_Profile/User_profile");
 const Users_auth_model = require("../../Models/Users_auth/Users_auth_model");
 
@@ -14,7 +15,12 @@ class profile {
                 if (!profileData) {
                     return res.status(404).json({ message: "profile data not found" })
                 }
-                return res.status(200).json({ message: "profile found" , success: true, Data: profileData })
+                const connection = await Connected.find(
+                    {
+                        $or: [{ senderId: user }, { receiverId: user }],
+                    }
+                )
+                return res.status(200).json({ message: "profile found" , success: true, Data: profileData ,Connection:connection })
             }
             return res.status(404).json({ message: "invalid user" })
         } catch (error) {
@@ -118,36 +124,41 @@ class profile {
 
     static async SearchUser(req, res) {
         try {
-          const q = req.query.searchQuery;
-          const regex = new RegExp('^' + q, 'i');
-          const pipeline = [
-            {
-              $lookup: {
-                from: 'users', 
-                localField: 'AccId',
-                foreignField: '_id',
-                as: 'user'
-              }
-            },
-            { $unwind: '$user' },
-            { $match: { 'user.username': { $regex: regex } } },
-            {
-              $project: {
-                _id: 0,
-                username: '$user.username',
-                photoUrl: '$profile_pic' 
-              }
-            },
-            { $limit: 10 }
-          ];
-      
-          const result = await Profile_model.aggregate(pipeline);
-          console.log(result)
-          res.status(200).json({ Data: result }); 
+            const {searchQuery} = req.params;
+            console.log(searchQuery)
+            if (!searchQuery) { 
+                return res.status(401).json({ message: "Missing searchQuery parameter" });
+            }
+    
+            const escapedQ = searchQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const regex = new RegExp('^' + escapedQ, 'i'); 
+            const pipeline = [
+                {
+                    $lookup: {
+                        from: 'users',
+                        localField: 'AccId',
+                        foreignField: '_id',
+                        as: 'user'
+                    }
+                },
+                { $unwind: '$user' },
+                { $match: { 'user.username': { $regex: regex } } },
+                {
+                    $project: {
+                        _id: '$user._id',
+                        username: '$user.username',
+                        photoUrl: '$profile_pic'
+                    }
+                },
+                { $limit: 10 }
+            ];
+    
+            const result = await Profile_model.aggregate(pipeline);
+            res.status(200).json({ Data: result });
         } catch (error) {
-          console.error(error); 
-          return res.status(500).json({ message: "Internal server error" });
+            console.error(error);
+            res.status(500).json({ message: "Internal server error" });
         }
-      }     
+    }    
 }
 module.exports = profile

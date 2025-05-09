@@ -12,8 +12,9 @@ const ProfilePage = () => {
     useEffect(()=>{
         if(userId !=param.id){
             console.log("enter")
-         dispatch(getAProfile(param.id))
+             dispatch(getAProfile(param.id))
         }
+        console.log('jidjf')
          dispatch(getUserPost(param.id))
          dispatch(fetchUserJobPosts(param.id))
      },[dispatch, param.id])

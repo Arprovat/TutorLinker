@@ -1,6 +1,6 @@
 
 import {  useState } from "react"
-import { PenLine, MapPin, Languages, Code, Plus, Mail } from "lucide-react"
+import { PenLine, MapPin, Languages, Code, Plus, Mail, UserRoundPlus } from "lucide-react"
 import PostCard from "../postCard/PostCard";
 import Job_card from "../job_card/Job_card";
 import {motion} from 'framer-motion'
@@ -18,7 +18,7 @@ export default function Profile() {
     const {userPost} = useSelector((state)=>state.post)
     const {UserJobpost} =useSelector((state)=>state.jobPost)
     
-    const {otherProfile,currentUser} =useSelector(state=>state.profile)
+    const {otherProfile,currentUser,connectionId} =useSelector(state=>state.profile)
     console.log("user",userPost)
     console.log('profile',otherProfile)
   
@@ -38,9 +38,9 @@ export default function Profile() {
                 <div className="flex flex-col md:flex-row gap-6">
                     <div className="w-full md:w-1/3 -mt-16 z-10">
                         <div className="flex flex-col items-center md:items-start">
-                            <div className="relative h-32 w-32 rounded-full border-4 border-white shadow-md dark:border-gray-900">
+                            <div className="relative h-32 w-32 rounded-full  border-white shadow-md dark:border-gray-900">
                                 <img
-                                    src="/placeholder.svg?height=128&width=128"
+                                    src='#'
                                     alt="Profile picture"
                                     className="h-full w-full rounded-full object-cover"
                                     onError={(e) => {
@@ -48,13 +48,13 @@ export default function Profile() {
                                     }}
                                 />
 
-                                <div className="absolute inset-0 flex items-center justify-center rounded-full bg-gray-100 text-4xl font-bold text-gray-600 dark:bg-gray-800 dark:text-gray-300">
-                                    <img src="#" alt="" />
+                                <div className="absolute">
+                                    <img src={displayUser.profile_pic} className="object-cover rounded-full w-32 h-32"  alt="" />
                                 </div>
                             </div>
 
                             <div className="mt-4 text-center md:text-left">
-                                <h1 className="text-2xl font-bold text-black">{displayUser.username}</h1>
+                                <h1 className="text-2xl font-bold text-black">{displayUser.username?displayUser.username:displayUser.AccId.username}</h1>
                                 <div className="flex items-center justify-center md:justify-start text-gray-500 mt-1">
                                     <MapPin className="h-4 w-4 mr-1" />
                                     <span>{displayUser.address}</span>
@@ -129,14 +129,24 @@ export default function Profile() {
             className="bg-zinc-100 text-black hover:bg-zinc-800 transition-bg duration-300 border-2 border-zinc-800 hover:text-white mx-auto w-full h-10 text-lg font-semibold rounded-lg "
           >
             <Link to='/main/EditProfile'>Edit profile</Link>
-          </motion.button>):( <motion.button
+          </motion.button>):( 
+            <div className="w-full flex">
+                <Link to='/mail' className="bg-gradient-to-r from-[#EA4335] via-[#FBBC05] to-[#178d1d]    shadow-md flex items-center justify-center text-black   gap-3   hover:bg-zinc-800 transition-bg duration-300 hover:bg-gradient-to-r hover:to-[#EA4335] hover:via-[#FBBC05] hover:from-[#178d1d] mx-auto w-[40%] h-10 text-lg font-bold rounded-lg "><motion.button
+            whileTap={{ scale: 1.05 }} >
+            <div className="flex gap-3  items-center my-auto justify-center"><Mail className="text-center"></Mail>
+           mail</div>
+          </motion.button></Link> 
+                <motion.button
             whileTap={{ scale: 1.05 }}
-            className="bg-zinc-100  flex gap-3 items-baseline justify-center text-black hover:bg-zinc-800 transition-bg duration-300 border-2 border-zinc-800 hover:text-white mx-auto w-full h-10 text-lg font-semibold rounded-lg "
+            className="bg-primary w-[40%] flex gap-3 items-baseline justify-center  hover:bg-blue-700 transition-bg duration-300  mx-auto h-10 text-lg font-semibold rounded-lg "
           >
-            <div className="flex gap-3 items-center my-auto justify-center"><Mail className="text-center"></Mail>
-            <Link to='/mail'>Mail</Link></div>
-          </motion.button>)
-
+            <div className="flex gap-3 items-center my-auto justify-center"><UserRoundPlus className="text-center" /> 
+            <Link to='/mail'>{connectionId.includes(param.id)?connectionId.status:"Request"}</Link></div>
+          </motion.button>
+            </div>
+            )
+          
+     
                            }
                         </div>
                     </div>

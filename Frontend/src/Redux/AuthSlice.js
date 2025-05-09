@@ -21,6 +21,7 @@ const initialState = {
     isAuth: false,
     socket: null,
     onlineUser: [],
+    coordinates:[],
     status : null,
     error :null ,
 
@@ -35,6 +36,12 @@ export const authSlice = createSlice({
             state.username = action.payload.username
             state.role = action.payload.role
             state.isAuth = true
+        },
+        setCoordinate:(state,action)=>{
+            console.log(action.payload)
+        state.coordinates=action.payload
+        
+
         },
         setSocket: (state, action) => {
             state.socket = action.payload
@@ -62,5 +69,5 @@ export const authSlice = createSlice({
             })
     }
 })
-export const { login, logout, setSocket, setOnlineUser } = authSlice.actions
+export const { login,setCoordinate, logout, setSocket, setOnlineUser } = authSlice.actions
 export default authSlice.reducer

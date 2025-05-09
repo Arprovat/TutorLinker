@@ -33,7 +33,7 @@ const User_profile_Schema = new Schema({
 },{timestamps:true});
 User_profile_Schema.methods.hasMinimumInfo =function(){
   return(
-    this.Skill?.length>0 &&
+    this.skill?.length>0 &&
     this.education?.length>0&&
     this.profile_pic
   )

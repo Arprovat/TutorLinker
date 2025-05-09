@@ -161,9 +161,10 @@ const postsSlice = createSlice({
   
     addComment(state, action) {
       const { postId, comment } = action.payload;
-      const post = state.items.find(p => p._id === postId);
+      const post = state.posts.find(p => p._id === postId);
       if (post) {
         post.comments.push(comment);
+
       }
     }
   },

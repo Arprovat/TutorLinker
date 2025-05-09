@@ -8,6 +8,7 @@ export const getProfile = createAsyncThunk(
     const response = await axios.get('http://localhost:8000/protect/profile', {
       withCredentials: true,
     });
+    console.log(response.data.Data)
     return response.data;
   }
 );
@@ -84,6 +85,7 @@ const initialState = {
   isComplete: false,},
   otherProfile:{},
   searchUser:[],
+  connectionId:[],
   loading: false,
   error: null,
 };
@@ -151,6 +153,7 @@ export const profileSlice = createSlice({
         state.currentUser.relationship = data.relationship;
         state.currentUser.religious = data.religious;
         state.currentUser.isComplete = data.isComplete;
+        state.connectionId=action.payload.Connection
       })
       .addCase(getProfile.rejected, (state, action) => {
         state.loading = false;
@@ -191,19 +194,21 @@ export const profileSlice = createSlice({
         state.loading = false;
 
         state.otherProfile = action.payload.Data
-        console.log(state.Profile)
+        console.log('p',state.otherProfile)
       })
       .addCase(getAProfile.rejected,(state)=>{
+        state.loading =false
+      })
+      .addCase(SearchUser.pending,(state)=>{
         state.loading =true
       })
       .addCase(SearchUser.fulfilled, (state,action) => {
         state.loading = false;
-
         state.searchUser = action.payload.Data
         
       })
       .addCase(SearchUser.rejected,(state)=>{
-        state.loading =true
+        state.loading =false
       })
       .addCase(changePassword.fulfilled, (state) => {
         state.loading = false;
