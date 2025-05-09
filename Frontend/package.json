@@ -16,6 +16,7 @@
     "axios": "^1.7.9",
     "framer-motion": "^12.4.2",
     "leaflet": "^1.9.4",
+    "leaflet-color-markers": "^0.1.0",
     "leaflet.heat": "^0.2.0",
     "lucide-react": "^0.475.0",
     "moment": "^2.30.1",

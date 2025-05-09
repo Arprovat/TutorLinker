@@ -11,6 +11,7 @@ const Main_page = () => {
    // const userId = localStorage.getItem('userId')
     useEffect(() => {
         dispatch(getProfile()); 
+        
       },[]);
 
      /* useEffect(()=>{

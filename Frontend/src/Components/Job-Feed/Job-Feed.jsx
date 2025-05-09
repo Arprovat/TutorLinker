@@ -19,6 +19,7 @@ const JobFeed = () => {
             navigator.geolocation.getCurrentPosition(resolve, reject, {
                 enableHighAccuracy: true,
                 timeout: 10000,
+                    maximumAge: 0  
             })
         })
        dispatch(setCoordinate([position.coords.latitude,position.coords.longitude]))
